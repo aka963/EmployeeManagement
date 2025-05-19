@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "onprem19",
+    "version": "1.10.0",
+    "libraryName": "exim-employee-management-spfx",
+    "libraryId": "4626af41-8f7a-4f87-995f-9b96f1628bf3",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}

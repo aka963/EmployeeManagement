@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "exim-employee-management-spfx-client-side-solution",
+    "id": "4626af41-8f7a-4f87-995f-9b96f1628bf3",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true
+  },
+  "paths": {
+    "zippedPackage": "solution/exim-employee-management-spfx.sppkg"
+  }
+}

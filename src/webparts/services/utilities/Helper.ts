@@ -1,0 +1,79 @@
+import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { IAddressMaster } from '../interface/IAddressMaster';
+import { DataType } from '../interface/IMultiSPQuery';
+
+export default class Helper {
+    public static getAddressByTpe(addressColl: IAddressMaster[], addressType: string): string {
+        const addColl: IAddressMaster[] = addressColl.filter(add => add.AddressType === addressType);
+        let address: string = '';
+
+        for (let index: number = 0; index < addColl.length; index++) {
+            const element: IAddressMaster = addColl[index];
+            address += element.Address + '<br/>';
+        }
+        return address;
+    }
+
+    public static mergeArrays(arr1: any[], arr2: any[]): any[] {
+        const mergedObject = [...arr1, ...arr2].reduce((acc, curr) => {
+            acc[curr.Id] = { ...(acc[curr.Id] || {}), ...curr };
+            return acc;
+        }, {});
+        return Object.values(mergedObject);
+    }
+
+    public static mergeArraysById(arr1: any[], arr2: any[]): any[] {
+        const mergedMap = new Map();
+
+        // First, add all items from the first array to the map.
+        arr1.forEach(item => {
+            mergedMap.set(item.Id, { ...item });
+        });
+
+        // Then merge items from the second array.
+        arr2.forEach(item => {
+            // If an object with the same Id exists, merge the properties.
+            if (mergedMap.has(item.Id)) {
+                mergedMap.set(item.Id, {
+                    ...mergedMap.get(item.Id),
+                    ...item
+                });
+            } else {
+                // If not, simply add the new object.
+                mergedMap.set(item.Id, { ...item });
+            }
+        });
+
+        // Convert the map back into an array of objects.
+        return Array.from(mergedMap.values());
+    }
+
+    public static hideShowLoader(strDisplay: string): void {
+        if (strDisplay === 'block') {
+            if (document.getElementById('divLoading')) {
+                document.getElementById('divLoading')!.style.display = 'block !important';
+                document.getElementById('divLoading')!.style.visibility = 'visible';
+            }
+        } else {
+            if (document.getElementById('divLoading')) {
+                document.getElementById('divLoading')!.style.display = 'none !important';
+                document.getElementById('divLoading')!.style.visibility = 'hidden';
+            }
+        }
+    }
+
+    public static getDropDownOptions(dataType: DataType, choices: [], strPlaceholder: string, strTextTitle?: string): IDropdownOption[] {
+        let ddOptions: IDropdownOption[] = [];
+        ddOptions.push({ index: 0, key: '', text: strPlaceholder });
+
+        for (let i = 0; i < choices.length; i++) {
+            if (dataType === DataType.ListItems) {
+                ddOptions.push({ index: (i + 1), key: choices[i]['Id'], text: choices[i][strTextTitle] });
+            } else if (dataType === DataType.Choices) {
+                ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i] });
+            }
+        }
+
+        return ddOptions;
+    }
+}
