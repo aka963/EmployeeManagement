@@ -11,14 +11,15 @@ export interface ITrainingNCertification {
     ApprovedBy?: IUserProps;
     Description?: string;
     EmployeeName?: string;
-    EndDate?: Date;
+    EndDate?: Date | string;
     ExperienceIn?: ITrainingCertificationMaster
+    ExperienceInId?: string | number;
     Grade?: string;
     Institute?: string;
     Location?: string;
     NoOfDays?: string;
     NoOfHours?: string;
-    StartDate?: Date;
+    StartDate?: Date | string;
     TodayDate?: Date;
     TrainingCost?: number;
 }
@@ -35,6 +36,7 @@ export const TrainingNCertification = {
     EmployeeName: '',
     EndDate: null,
     ExperienceIn: TrainingCertificationMaster,
+    ExperienceInId: '',
     Grade: '',
     Institute: '',
     Location: '',

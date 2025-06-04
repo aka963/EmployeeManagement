@@ -74,6 +74,14 @@ export default class CreateUserProfileOps {
     //public static strEmployeeMasterFilterColumns = '(Title eq \'' + userProfile.Title + '\')';
     public static strEmployeeMasterSortColumns = { orderBy: 'Title', ascending: true };
 
+    public static strTrainingNCertificationMasterListTitle: string = 'TrainingCertificationMaster';
+    public static strTrainingNCertificationMasterColumns: string = 'Id,Title';
+    public static strTrainingNCertificationMasterExpandColumns: string = '';
+    public static strTrainingNCertificationMasterSortColumns = { orderBy: 'Title', ascending: true };
+
+    public static strEmpTrainingNCertificationListTitle: string = 'EmpTrainingAndCertification';
+    public static strEmpTrainingNCertificationChoiceColumns: string[] = ['Location'];
+
     // #endregion
 
     public static async getUserInfo(username: string, props: IEmployeeMangementProps): Promise<ISiteUserProps> {
@@ -145,7 +153,16 @@ export default class CreateUserProfileOps {
         });
 
         multiSPQuery.push({
+            Type: DataType.ListItems, ListTitle: this.strTrainingNCertificationMasterListTitle, SelectQuery: this.strTrainingNCertificationMasterColumns,
+            ExpandQuery: this.strTrainingNCertificationMasterExpandColumns, FilterQuery: '', SortQuery: this.strTrainingNCertificationMasterSortColumns
+        });
+
+        multiSPQuery.push({
             Type: DataType.Choices, ListTitle: this.strEmployeeMasterListTitle, ChoiceColumns: this.strEmployeeMasterChoiceColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.Choices, ListTitle: this.strEmpTrainingNCertificationListTitle, ChoiceColumns: this.strEmpTrainingNCertificationChoiceColumns
         });
         // #endregion
 
@@ -155,7 +172,7 @@ export default class CreateUserProfileOps {
             let multiResults: IUserProfileLoadData = {
                 BankMaster: resp[0], OfficeMaster: resp[1], DesignationMaster: resp[2], EmployeeTypeMaster: resp[3]
                 , GradeMaster: resp[4], ScaleMaster: resp[5], PayScaleMaster: resp[6], ShiftAllocatedMaster: resp[7]
-                , SubGroupMaster: resp[8], UnitMaster: resp[9]
+                , SubGroupMaster: resp[8], UnitMaster: resp[9], TrainingCertificationMaster: resp[10]
 
                 , BankChoices: Helper.getDropDownOptions(DataType.ListItems, resp[0], 'Select Bank', 'Title')
                 , OfficeChoices: Helper.getDropDownOptions(DataType.ListItems, resp[1], 'Select Office', 'Title')
@@ -167,17 +184,19 @@ export default class CreateUserProfileOps {
                 , ShiftAllocatedChoices: Helper.getDropDownOptions(DataType.ListItems, resp[7], 'Select Shift Allocated', 'Title')
                 , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select Sub Group', 'Title')
                 , UnitChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Unit', 'Title')
+                , TrainingCertificationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Type', 'Title')
 
-                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[10].Choices, 'Select Blood Group')
-                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[11].Choices, 'Select Contract Type')
-                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[12].Choices, 'Select Title')
-                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[13].Choices, 'Select Gender')
-                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[14].Choices, 'Select Marital Status')
-                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Whether')
-                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Probation Period')
-                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Role')
-                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Whether')
-                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select WeeklyOff')
+                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[11].Choices, 'Select Blood Group')
+                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[12].Choices, 'Select Contract Type')
+                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[13].Choices, 'Select Title')
+                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[14].Choices, 'Select Gender')
+                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Marital Status')
+                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Whether')
+                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Probation Period')
+                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Role')
+                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Whether')
+                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select WeeklyOff')
+                , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Location')
             };
             return multiResults;
         }).catch((e) => {

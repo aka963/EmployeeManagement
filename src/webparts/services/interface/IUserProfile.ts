@@ -19,6 +19,7 @@ import { ISubGroupMaster, SubGroupMaster } from "./ISubGroupMaster";
 import { IUnitMaster, UnitMaster } from "./IUnitMaster";
 import { IDropdownOption } from "office-ui-fabric-react/lib/Dropdown";
 import { number, string } from "yup";
+import { ITrainingCertificationMaster } from "./ITrainingCertificationMaster";
 
 export interface IUserProfile {
     UserName?: IUserProps;
@@ -40,20 +41,28 @@ export interface IUserProfile {
     Modified?: Date;
     MobileNo_x002e_?: string;
     Designation?: IDesignationMaster;
+    DesignationId?: string | number;
     Payscale?: IPayScaleMaster;
+    PayscaleId?: string | number;
     Scale?: IScaleMaster;
+    ScaleId?: string | number;
     Grade?: IGradeMaster;
+    GradeId?: string | number;
     EmployeeType?: IEmployeeTypeMaster;
     EmployeeTypeId?: string | number,
     Unit?: IUnitMaster;
     OfficeLocation?: IOfficeMaster;
+    OfficeLocationId?: string | number;
     CurrentOfficeLocation?: IOfficeMaster;
+    CurrentOfficeLocationId?: string | number;
     DeputationOfficeLocation?: IOfficeMaster;
+    DeputationOfficeLocationId?: string | number;
     CompanyEmail?: string;
     IFSCCode?: string;
     Phone_x0020_No?: string;
     DateOfJoining?: Date;
     ShiftAllocated?: IShiftAllocatedMaster;
+    ShiftAllocatedId?: string;
     FirstName?: string;
     LastName?: string;
     EmployeeName?: string;
@@ -61,9 +70,10 @@ export interface IUserProfile {
     BankName?: IBankMaster;
     AccountNo?: string;
     PassportExpiryDate?: string;
-    DOB?: Date;
+    DOB?: Date | string;
     Role?: string;
     SubGroup?: [ISubGroupMaster];
+    SubGroupId?: [];
     Id?: string;
     Title?: string;
     Gender?: string;
@@ -109,14 +119,14 @@ export interface IUserProfile {
     DateOfConfirmation?: Date;
     DateOfPromotion?: Date;
     DrivingLicenseExpiryDate?: Date;
-    EffectiveDate?: Date;
+    EffectiveDate?: Date | string;
     ESI_x0020_JoiningDate?: Date;
     ESI_x0020_LeavingDate?: Date;
     LTCDate?: Date;
     MarriageDate?: Date;
     PassportIssueDate?: Date;
     ShiftEffectiveFrom?: Date;
-    TempDOB?: Date;
+    TempDOB?: Date | string;
     TodayDate?: Date;
     ContractType?: string;
     EmployeeTitle?: string;
@@ -156,6 +166,7 @@ export interface IUserProfileLoadData {
     ShiftAllocatedMaster?: IShiftAllocatedMaster[];
     SubGroupMaster?: ISubGroupMaster[];
     UnitMaster?: IUnitMaster[];
+    TrainingCertificationMaster?: ITrainingCertificationMaster[];
 
     BankChoices?: IDropdownOption[];
     OfficeChoices?: IDropdownOption[];
@@ -167,6 +178,8 @@ export interface IUserProfileLoadData {
     ShiftAllocatedChoices?: IDropdownOption[];
     SubGroupChoices?: IDropdownOption[];
     UnitChoices?: IDropdownOption[];
+    TrainingCertificationChoices?: IDropdownOption[];
+    TrainingNCertificationLocationChoices?: IDropdownOption[];
 
     BloodGroupChoices?: IDropdownOption[];
     ContractTypeChoices?: IDropdownOption[];
@@ -200,20 +213,28 @@ export const InitializedUserProfile: IUserProfile = {
     Modified: null,
     MobileNo_x002e_: '',
     Designation: DesignationMaster,
+    DesignationId: '',
     Payscale: PayScaleMaster,
+    PayscaleId: '',
     Scale: ScaleMaster,
+    ScaleId: '',
     Grade: GradeMaster,
+    GradeId: '',
     EmployeeType: EmployeeTypeMaster,
     EmployeeTypeId: '',
     Unit: UnitMaster,
     OfficeLocation: OfficeMaster,
+    OfficeLocationId: '',
     CurrentOfficeLocation: OfficeMaster,
+    CurrentOfficeLocationId: '',
     DeputationOfficeLocation: OfficeMaster,
+    DeputationOfficeLocationId: '',
     CompanyEmail: '',
     IFSCCode: '',
     Phone_x0020_No: '',
     DateOfJoining: null,
     ShiftAllocated: ShiftAllocatedMaster,
+    ShiftAllocatedId: '',
     FirstName: '',
     LastName: '',
     EmployeeName: '',
@@ -224,6 +245,7 @@ export const InitializedUserProfile: IUserProfile = {
     DOB: null,
     Role: '',
     SubGroup: [SubGroupMaster],
+    SubGroupId: [],
     Id: '',
     Title: '',
     Gender: '',

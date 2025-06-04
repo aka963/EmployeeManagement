@@ -315,7 +315,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                             </div>
                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                 <Label>DOB:&nbsp;</Label>
-                                                {(!this.state.userProfile.DOB) ? <Moment format='DD MMM YYYY'>{this.state.userProfile.DOB.toLocaleDateString()}</Moment> : ''}
+                                                {(!this.state.userProfile.DOB) ? <Moment format='DD MMM YYYY'>{(this.state.userProfile.DOB as Date).toLocaleDateString()}</Moment> : ''}
                                             </div>
                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                 <Label>Religion:&nbsp;</Label> {this.state.userProfile.Religion}
@@ -453,7 +453,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>Effective Date:&nbsp;</Label>
-                                                                {(this.state.userProfile.EffectiveDate !== undefined) ? <Moment format='DD MMM YYYY'>{this.state.userProfile.EffectiveDate.toLocaleDateString()}</Moment> : ''}
+                                                                {(this.state.userProfile.EffectiveDate !== undefined) ? <Moment format='DD MMM YYYY'>{(this.state.userProfile.EffectiveDate as Date).toLocaleDateString()}</Moment> : ''}
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>Deputation Office Location:&nbsp;</Label> {(this.state.userProfile.DeputationOfficeLocation !== undefined) ? this.state.userProfile.DeputationOfficeLocation.Title : ''}

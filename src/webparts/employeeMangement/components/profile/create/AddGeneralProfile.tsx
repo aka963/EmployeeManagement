@@ -24,6 +24,7 @@ import { IUserProfile, InitializedUserProfile, IUserProfileLoadData } from '../.
 
 export default class AddGeneralProfile extends React.Component<IEmployeeMangementProps, ICreateUserProfile> {
     // public userProfileLoadData: IUserProfileLoadData;
+    public isOnEmpId: boolean = false;
     public formikInstance: Formik;
     public isFormValid: boolean = false;
     constructor(props: IEmployeeMangementProps) {
@@ -41,22 +42,23 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         this.formikInstance = ref;
     };
 
-    private async _getPeoplePickerItems(items: any[], formikProps: FormikProps<FormikValues>, pplPickerSetFieldName: string) {
+    private async _getPeoplePickerItems(items: any[], formikProps: FormikProps<FormikValues>, pplPickerSetFieldName: string, pplPickerSetFieldObjName: string) {
         // console.log('Items:', items);
         if (items.length > 0) {
             const userInfo = await cupOps.getUserInfo(items[0].loginName, this.props);
-            this.setState({ userProfile: { UserName: userInfo } });
+            // this.setState({ userProfile: { UserName: userInfo } });
             formikProps.setFieldTouched(pplPickerSetFieldName, true);
             formikProps.setFieldValue(pplPickerSetFieldName, userInfo.Id);
+            formikProps.setFieldValue(pplPickerSetFieldObjName, userInfo);
             // console.log('UserInfo:', userInfo);
         }
     }
 
     private onProfileSubmit(values: IUserProfile, actions?: FormikActions<IUserProfile>): void {
-        // console.log(this.isFormValid);
+        console.log(this.isFormValid);
         if (this.isFormValid) {
             this.setState({ userProfile: values });
-            // console.log('Submitted values:', this.state.userProfile);
+            console.log('Submitted values:', this.state.userProfile);
         }
         // actions.setSubmitting(false);
     }
@@ -71,8 +73,31 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
 
         cupOps.getUserProfileDataOnLoad(this.props).then((resp) => {
             this.setState({ userProfileLoadData: resp });
-            console.log(resp);
+            // console.log(resp);
         });
+    }
+
+    private checkEmployeeExists(strEmpId, formikProps: FormikProps<FormikValues>): Promise<boolean> {
+        return cupOps.getEmployeeIdById(strEmpId, this.props).then((results) => {
+            if (results.length > 0) {
+                //formikProps.errors.Title = 'Employee Id already exists.'
+                formikProps.setFieldError('Title', 'Employee Id already exists.');
+                // formikProps.errors.Title = 'Employee Id already exists.';
+                document.getElementById('Title').focus();
+                return false;
+            } else {
+                //formikProps.errors.Title = ''
+                formikProps.setFieldError('Title', '');
+                // formikProps.errors.Title = '';
+                return true;
+            }
+        }).catch((e) => {
+            //formikProps.errors.Title = 'Error while extracting Id\'s'
+            formikProps.setFieldError('Title', 'Error while extracting Id\'s');
+            // formikProps.errors.Title = 'Error while extracting Id\'s';
+            document.getElementById('Title').focus();
+            return false;
+        })
     }
 
     public render(): React.ReactElement<IEmployeeMangementProps> {
@@ -82,12 +107,75 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         } = this.props;
 
         const validate = yup.object().shape({
-            Title: yup.string().required('Employee Id is required.'),
-            UserNameId: yup.string().required('Valid user is required.'),
-            EmployeeTypeId: yup.string().trim().required('Type is required.'),
-            EmployeeTitle: yup.string().trim().required('Title is required.'),
-            FirstName: yup.string().trim().required('First Name is required.'),
-            LastName: yup.string().trim().required('Last Name is required.'),
+            Title: yup.string().required('Employee Id is required.')
+                .test('Title', 'Employee Id already exists.',
+                    async (strEmpId) => {
+                        if (!strEmpId) return false;
+                        // if (document.activeElement !== document.getElementById('Title')) {
+                        if (this.isOnEmpId) {
+                            return cupOps.getEmployeeIdById(strEmpId, this.props).then((results) => {
+                                if (results.length > 0) {
+                                    this.isOnEmpId = true;
+                                    document.getElementById('Title').focus();
+                                    return false;
+                                } else {
+                                    this.isOnEmpId = false;
+                                    return true;
+                                }
+                            }).catch((e) => {
+                                this.isOnEmpId = true;
+                                return false;
+                            });
+                        } else {
+                            // this.isOnEmpId = false;
+                            return true;
+                        }
+                        // }
+                        // else {
+                        //     return true;
+                        // }
+                    }
+                )
+            , UserNameId: yup.string().required('Valid user is required.')
+            , EmployeeTypeId: yup.string().trim().required('Type is required.')
+            , EmployeeTitle: yup.string().trim().required('Title is required.')
+            , FirstName: yup.string().trim().required('First Name is required.')
+            , LastName: yup.string().trim().required('Last Name is required.')
+            , MiddleName: yup.string().trim().required('Middle Name is required.')
+            , Gender: yup.string().trim().required('Gender is required.')
+            , DOB: yup.date().nullable().required('DOB is required.').typeError('A valid date is required')
+            , Religion: yup.string().trim().required('Religion is required.')
+            , Caste: yup.string().trim().required('Caste is required.')
+            , MartialStatus: yup.string().trim().required('Marital Status is required.')
+            , MobileNo_x002e_: yup.string().trim().required('Mobile No is required.')
+            , CompanyEmail: yup.string().trim().required('Email is required.')
+            , AlternateEmail: yup.string().trim().required('Email is required.')
+            , Nationality: yup.string().trim().required('Nationality is required.')
+            , AadharCardNo: yup.string().trim().required('Aadhar Card No is required.')
+            , PAN_x0020_No: yup.string().trim().required('Nationality is required.')
+            , OfficeLocationId: yup.string().trim().required('Office Location is required.')
+            , Role: yup.string().trim().required('Role is required.')
+            , ScaleId: yup.string().trim().required('Scale is required.')
+            , GardeId: yup.string().trim().required('Garde is required.')
+            , DesignationId: yup.string().trim().required('Designation is required.')
+            , PayscaleId: yup.string().trim().required('Payscale is required.')
+            , SubGroupId: yup.array().of(yup.string().required('Group cannot be empty')).min(1, 'Please add at least one Group').required('Group is required')
+            , CurrentOfficeLocationId: yup.string().trim().required('Current Office Location is required.')
+            , EffectiveDate: yup.date().nullable().required('Effective Date is required.').typeError('A valid date is required')
+            , DeputationOfficeLocationId: yup.string().trim().required('Deputation Office Location is required.')
+            , ShiftAllocatedId: yup.string().trim().required('ShiftAllocated is required.')
+            , ShiftEffectiveFrom: yup.date().nullable().required('Shift Effective From is required.').typeError('A valid date is required')
+            , LeaveLevel1Id: yup.string().required('Valid user is required.')
+            , LeaveLevel2Id: yup.string().required('Valid user is required.')
+            , TrainingNCertificateColl: yup.array().of(yup.object().shape({
+                ExperienceInId: yup.string().required('Type is required')
+                , Institute: yup.string().required('Institute is required')
+                , TrainingCost: yup.string().required('Training Cost is required')
+                , Location: yup.string().required('Location is required')
+                , Description: yup.string().required('Description is required')
+                , StartDate: yup.date().nullable().required('Start Date is required.').typeError('A valid date is required')
+                , EndDate: yup.date().nullable().required('End Date is required.').typeError('A valid date is required')
+            }))
         });
 
         return (
@@ -133,28 +221,25 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='row'>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>ID:&nbsp;</Label>
-                                                                            <TextField className='form-control' placeholder='Auto Generated' name='Title' id='Title' required={true}
+                                                                            <TextField className='form-control' name='Title' id='Title' required={true}
                                                                                 onFocus={(e) => {
+                                                                                    this.isOnEmpId = true;
                                                                                     formik.setFieldTouched('Title', true);
                                                                                     // console.log(formik);
                                                                                 }}
                                                                                 onBlur={(e) => {
                                                                                     formik.setFieldTouched('Title', true);
                                                                                     if (e.target['value'].trim() !== '' && e.target['value'].trim() !== undefined) {
-                                                                                        cupOps.getEmployeeIdById(e.target['value'], this.props).then((results) => {
-                                                                                            if (results.length > 0) {
-                                                                                                formik.setFieldError('Title', 'Employee Id already exists.');
-                                                                                                setTimeout(function () {
-                                                                                                    document.getElementById('Title').focus();
-                                                                                                })
-                                                                                            }
-                                                                                        })
+                                                                                        formik.setFieldValue('Title', e.target['value'].trim());
+                                                                                        // this.checkEmployeeExists(e.target['value'].trim(), formik);
                                                                                     }
                                                                                 }}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('Title', val);
+                                                                                    this.isOnEmpId = true;
+                                                                                    // formik.setFieldValue('Title', val);
                                                                                 }}
-                                                                                errorMessage={formik.errors.Title && formik.touched.Title ? formik.errors.Title as string : ''}></TextField>
+                                                                                errorMessage={formik.errors.Title && formik.touched.Title ? formik.errors.Title as string : ''}
+                                                                            ></TextField>
                                                                             <ErrorMessage name='Title' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item' onFocus={(ev) => {
@@ -168,7 +253,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 personSelectionLimit={1}
                                                                                 tooltipDirectional={1}
                                                                                 selectedItems={(items) => {
-                                                                                    this._getPeoplePickerItems(items, formik, 'UserNameId');
+                                                                                    this._getPeoplePickerItems(items, formik, 'UserNameId', 'UserName');
                                                                                     // formik.setFieldValue('Level1Approver', items);
                                                                                 }}
                                                                                 principalTypes={[PrincipalType.User]}
@@ -184,11 +269,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Ext:&nbsp;</Label>
-                                                                            <TextField className='form-control' name='Extension'></TextField>
+                                                                            <TextField className='form-control' id='Extension' name='Extension'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Extension', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Employee Type:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Type' className='form-control' id='EmployeeType' options={
+                                                                            <Dropdown className='form-control' placeHolder='Select Type' id='EmployeeType' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.EmployeeTypeChoices : []
                                                                             } required={true}
                                                                                 onFocus={(e) => {
@@ -207,7 +295,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Title:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Type' className='form-control' id='EmployeeTitle' options={
+                                                                            <Dropdown className='form-control' placeHolder='Select Title' id='EmployeeTitle' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.EmployeeTitleChoices : []
                                                                             } required={true}
                                                                                 onFocus={(e) => {
@@ -245,11 +333,22 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Middle Name:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='MiddleName' name='MiddleName' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('MiddleName', true);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('MiddleName', true);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('MiddleName', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.MiddleName && formik.touched.MiddleName ? formik.errors.MiddleName as string : ''}></TextField>
+                                                                            <ErrorMessage name='MiddleName' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Last Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' name='LastName' required={true}
+                                                                            <TextField className='form-control' id='LastName' name='LastName' required={true}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('LastName', true);
                                                                                     // console.log(formik);
@@ -260,92 +359,137 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 }}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('LastName', val);
-                                                                                    // this.setState({ userProfile: { LastName: val } });
-                                                                                    // console.log(formik);
-                                                                                    // this.formikInstance.validateForm(formik.values).then((resp) => {
-                                                                                    //     console.log(resp);
-                                                                                    //     console.log(formik);
-                                                                                    // });
                                                                                 }}
                                                                                 errorMessage={formik.errors.LastName && formik.touched.LastName ? formik.errors.LastName as string : ''}></TextField>
                                                                             <ErrorMessage name='LastName' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>First Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='FirstName_Hindi' name='FirstName_Hindi'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('FirstName_Hindi', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Middle Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='MiddleName_Hindi' name='MiddleName_Hindi'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('MiddleName_Hindi', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Last Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='LastName_Hindi' name='LastName_Hindi'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('LastName_Hindi', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Father's Name:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='FatherName' name='FatherName'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('FatherName', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Mother's Name:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='MotherName' name='MotherName'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('MotherName', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Gender:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Gender' className='form-control' options={
-                                                                                [
-                                                                                    { key: 'A', text: 'Female' },
-                                                                                    { key: 'B', text: 'Male' },
-                                                                                    { key: 'C', text: 'Transgender' },
-                                                                                    { key: 'D', text: 'Option d' },
-                                                                                    { key: 'E', text: 'Option e' },
-                                                                                    { key: 'F', text: 'Option f' },
-                                                                                    { key: 'G', text: 'Option g' },
-                                                                                    { key: 'H', text: 'Option h' },
-                                                                                    { key: 'I', text: 'Option i' },
-                                                                                    { key: 'J', text: 'Option j' },
-                                                                                ]
-                                                                            } />
+                                                                            <Dropdown placeHolder='Select Gender' className='form-control' id='Gender' options={
+                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GenderChoices : []
+                                                                            } required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('Gender', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('Gender', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Gender', val.key);
+                                                                                }}
+                                                                                errorMessage={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender as string : ''} />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Blood Group:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Blood Group' className='form-control' options={
-                                                                                [
-                                                                                    { key: 'A', text: 'A' },
-                                                                                    { key: 'B', text: 'B' },
-                                                                                    { key: 'C', text: 'O' },
-                                                                                    { key: 'D', text: 'Option d' },
-                                                                                    { key: 'E', text: 'Option e' },
-                                                                                    { key: 'F', text: 'Option f' },
-                                                                                    { key: 'G', text: 'Option g' },
-                                                                                    { key: 'H', text: 'Option h' },
-                                                                                    { key: 'I', text: 'Option i' },
-                                                                                    { key: 'J', text: 'Option j' },
-                                                                                ]
-                                                                            } />
+                                                                            <Dropdown placeHolder='Select Blood Group' className='form-control'
+                                                                                options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BloodGroupChoices : []} />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Date of Birth:&nbsp;</Label>
-                                                                            <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
+                                                                            <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                                value={formik.values.DOB}
                                                                                 maxDate={new Date(new Date().getFullYear() - 21, new Date().getMonth(), new Date().getDate())}
-                                                                                initialPickerDate={new Date(new Date().getFullYear() - 21, new Date().getMonth(), new Date().getDate())}></DatePicker>
+                                                                                initialPickerDate={new Date(new Date().getFullYear() - 21, new Date().getMonth(), new Date().getDate())}
+                                                                                onSelectDate={(val) => {
+                                                                                    // formik.setFieldTouched('DOB', true);
+                                                                                    formik.setFieldValue('DOB', val);
+                                                                                }}
+                                                                                onAfterMenuDismiss={() => {
+                                                                                    formik.setFieldTouched('DOB', true);
+                                                                                }}
+                                                                            ></DatePicker>
+                                                                            <ErrorMessage name='DOB' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Religion:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Religion' name='Religion' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('Religion', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('Religion', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Religion', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.Religion && formik.touched.Religion ? formik.errors.Religion as string : ''}
+                                                                            ></TextField>
+                                                                            <ErrorMessage name='Religion' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Category [Caste]:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Caste' name='Caste' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('Caste', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('Caste', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Caste', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.Caste && formik.touched.Caste ? formik.errors.Caste as string : ''}
+                                                                            ></TextField>
+                                                                            <ErrorMessage name='Caste' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Marital Status:&nbsp;</Label>
                                                                             <Dropdown placeHolder='Select Marital Status' className='form-control' options={
-                                                                                [
-                                                                                    { key: 'A', text: 'Married' },
-                                                                                    { key: 'B', text: 'Single' }
-                                                                                ]
-                                                                            } />
+                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.MaritalStatusChoices : []
+                                                                            } required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('MartialStatus', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('MartialStatus', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('MartialStatus', val.key);
+                                                                                }}
+                                                                                errorMessage={formik.errors.MartialStatus && formik.touched.MartialStatus ? formik.errors.MartialStatus as string : ''} />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Phone:&nbsp;</Label>
@@ -353,15 +497,57 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Mobile:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='MobileNo_x002e_' name='MobileNo_x002e_' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('MobileNo_x002e_', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('MobileNo_x002e_', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('MobileNo_x002e_', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.MobileNo_x002e_ && formik.touched.MobileNo_x002e_ ? formik.errors.MobileNo_x002e_ as string : ''}
+                                                                            ></TextField>
+                                                                            <ErrorMessage name='MobileNo_x002e_' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Corporate Email:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='CompanyEmail' name='CompanyEmail' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('CompanyEmail', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('CompanyEmail', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('CompanyEmail', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.CompanyEmail && formik.touched.CompanyEmail ? formik.errors.CompanyEmail as string : ''}
+                                                                            ></TextField>
+                                                                            <ErrorMessage name='CompanyEmail' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Alternate Email:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='AlternateEmail' name='AlternateEmail' required={true}
+                                                                                onFocus={(e) => {
+                                                                                    formik.setFieldTouched('AlternateEmail', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onBlur={(e) => {
+                                                                                    formik.setFieldTouched('AlternateEmail', true);
+                                                                                    // console.log(formik);
+                                                                                }}
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('AlternateEmail', val);
+                                                                                }}
+                                                                                errorMessage={formik.errors.AlternateEmail && formik.touched.AlternateEmail ? formik.errors.AlternateEmail as string : ''}
+                                                                            ></TextField>
+                                                                            <ErrorMessage name='AlternateEmail' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Office Extension:&nbsp;</Label>
@@ -438,11 +624,39 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Nationality:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='Nationality' name='Nationality' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('Nationality', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('Nationality', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('Nationality', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.Nationality && formik.touched.Nationality ? formik.errors.Nationality as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='Nationality' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Aadhaar Card No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='AadharCardNo' name='AadharCardNo' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('AadharCardNo', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('AadharCardNo', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('AadharCardNo', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.AadharCardNo && formik.touched.AadharCardNo ? formik.errors.AadharCardNo as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='AadharCardNo' component='div' className='error-message' />
                                                                         <input type='file' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
@@ -452,7 +666,21 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PAN No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='PAN_x0020_No' name='PAN_x0020_No' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('PAN_x0020_No', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('PAN_x0020_No', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PAN_x0020_No', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.PAN_x0020_No && formik.touched.PAN_x0020_No ? formik.errors.PAN_x0020_No as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='PAN_x0020_No' component='div' className='error-message' />
                                                                         <input type='file' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
@@ -557,23 +785,41 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Office' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('OfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('OfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('OfficeLocationId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.OfficeLocationId && formik.touched.OfficeLocationId ? formik.errors.OfficeLocationId as string : ''} />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Role:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Role' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.RoleChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('Role', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('Role', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('Role', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.Role && formik.touched.Role ? formik.errors.Role as string : ''} />
                                                                     </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                    {/* <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Employee Type:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Bank' className='form-control' options={
                                                                             [
@@ -581,42 +827,82 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 { key: 'B', text: 'HDFC' }
                                                                             ]
                                                                         } />
-                                                                    </div>
+                                                                    </div> */}
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Scale:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Scale' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ScaleChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('ScaleId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('ScaleId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('ScaleId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.ScaleId && formik.touched.ScaleId ? formik.errors.ScaleId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Grade:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Grade' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GradeChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('GardeId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('GardeId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('GardeId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.GardeId && formik.touched.GardeId ? formik.errors.GardeId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Designation:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Designation' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.DesignationChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('DesignationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('DesignationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('DesignationId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.DesignationId && formik.touched.DesignationId ? formik.errors.DesignationId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Pay Scale:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Pay Scale' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.PayScaleChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('PayscaleId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('PayscaleId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PayscaleId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.PayscaleId && formik.touched.PayscaleId ? formik.errors.PayscaleId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Weekly Off:&nbsp;</Label>
@@ -646,12 +932,22 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' multiSelect={true} options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Group' className='form-control' multiSelect={true} options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('SubGroupId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('SubGroupId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('SubGroupId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Unit:&nbsp;</Label>
@@ -664,41 +960,89 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Current Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Current Office' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('CurrentOfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('CurrentOfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('CurrentOfficeLocationId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.CurrentOfficeLocationId && formik.touched.CurrentOfficeLocationId ? formik.errors.CurrentOfficeLocationId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Effective Date:&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())}></DatePicker>
-
+                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true} value={formik.values.EffectiveDate}
+                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('DOB', true);
+                                                                                formik.setFieldValue('EffectiveDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('EffectiveDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='EffectiveDate' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Deputation Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Deputation Office' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('DeputationOfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('DeputationOfficeLocationId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('DeputationOfficeLocationId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.DeputationOfficeLocationId && formik.touched.DeputationOfficeLocationId ? formik.errors.DeputationOfficeLocationId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Shift Allocated:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Shift Allocated' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ShiftAllocatedChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('ShiftAllocatedId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('ShiftAllocatedId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('ShiftAllocatedId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.ShiftAllocatedId && formik.touched.ShiftAllocatedId ? formik.errors.ShiftAllocatedId as string : ''}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Shift Effective From:&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}></DatePicker>
+                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                            value={formik.values.ShiftEffectiveFrom}
+                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('DOB', true);
+                                                                                formik.setFieldValue('ShiftEffectiveFrom', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('ShiftEffectiveFrom', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='ShiftEffectiveFrom' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item' onFocus={(ev) => {
                                                                         formik.setFieldTouched('ReportingManagerId', true);
@@ -711,7 +1055,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             personSelectionLimit={1}
                                                                             tooltipDirectional={1}
                                                                             selectedItems={(items) => {
-                                                                                this._getPeoplePickerItems(items, formik, 'ReportingManagerId');
+                                                                                this._getPeoplePickerItems(items, formik, 'ReportingManagerId', 'ReportingManager');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
                                                                             principalTypes={[PrincipalType.User]}
@@ -734,7 +1078,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             personSelectionLimit={1}
                                                                             tooltipDirectional={1}
                                                                             selectedItems={(items) => {
-                                                                                this._getPeoplePickerItems(items, formik, 'AlternateReportingManagerId');
+                                                                                this._getPeoplePickerItems(items, formik, 'AlternateReportingManagerId', 'AlternateReportingManager');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
                                                                             principalTypes={[PrincipalType.User]}
@@ -757,7 +1101,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             personSelectionLimit={1}
                                                                             tooltipDirectional={1}
                                                                             selectedItems={(items) => {
-                                                                                this._getPeoplePickerItems(items, formik, 'LeaveLevel1Id');
+                                                                                this._getPeoplePickerItems(items, formik, 'LeaveLevel1Id', 'LeaveLevel1');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
                                                                             principalTypes={[PrincipalType.User]}
@@ -780,7 +1124,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             personSelectionLimit={1}
                                                                             tooltipDirectional={1}
                                                                             selectedItems={(items) => {
-                                                                                this._getPeoplePickerItems(items, formik, 'LeaveLevel2Id');
+                                                                                this._getPeoplePickerItems(items, formik, 'LeaveLevel2Id', 'LeaveLevel2');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
                                                                             principalTypes={[PrincipalType.User]}
@@ -827,43 +1171,125 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Training Certification:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' multiSelect={true} options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Type' className='form-control' options={
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingCertificationChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('ExperienceInId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('ExperienceInId', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('ExperienceInId', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.ExperienceInId && formik.touched.ExperienceInId ? formik.errors.ExperienceInId as string : ''}
+                                                                         />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Training Certifying Institute:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='Institute' name='Institute' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('Institute', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('Institute', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('Institute', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.Institute && formik.touched.Institute ? formik.errors.Institute as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='Institute' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Traning Cost:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='TrainingCost' name='TrainingCost' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('TrainingCost', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('TrainingCost', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('TrainingCost', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.TrainingCost && formik.touched.TrainingCost ? formik.errors.TrainingCost as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='TrainingCost' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Location:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingNCertificationLocationChoices : []
+                                                                        } required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('Location', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('Location', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('Location', val.key);
+                                                                            }}
+                                                                            errorMessage={formik.errors.Location && formik.touched.Location ? formik.errors.Location as string : ''}
+                                                                          />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Description:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='Description' name='Description' required={true}
+                                                                            onFocus={(e) => {
+                                                                                formik.setFieldTouched('Description', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                formik.setFieldTouched('Description', true);
+                                                                                // console.log(formik);
+                                                                            }}
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('Description', val);
+                                                                            }}
+                                                                            errorMessage={formik.errors.Description && formik.touched.Description ? formik.errors.Description as string : ''}
+                                                                        ></TextField>
+                                                                        <ErrorMessage name='Description' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Start Date&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}></DatePicker>
+                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                            // value={formik.values.TrainingNCertificateColl.StartDate}
+                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('StartDate', true);
+                                                                                formik.setFieldValue('StartDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('StartDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='StartDate' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>End Date&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())}></DatePicker>
+                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                            // value={formik.values.TrainingNCertificateColl.EndDate}
+                                                                            maxDate={new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('EndDate', true);
+                                                                                formik.setFieldValue('EndDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('EndDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='EndDates' component='div' className='error-message' />
                                                                     </div>
                                                                 </div>
                                                             </div>
