@@ -15,12 +15,14 @@ import { DatePicker, DayOfWeek, IDatePickerStrings } from 'office-ui-fabric-reac
 import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
 import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 
-import { Formik, FormikProps, ErrorMessage, Field, FormikActions, FormikValues } from 'formik';
+import { Formik, FormikProps, ErrorMessage, Field, FormikActions, FormikValues, FieldArray } from 'formik';
 import * as yup from 'yup';
 
 import cupOps from '../../../../services/bal/CreateUserProfileOps';
 
 import { IUserProfile, InitializedUserProfile, IUserProfileLoadData } from '../../../../services/interface/IUserProfile';
+import { ITrainingNCertification } from '../../../../services/interface/ITrainingNCertification';
+import { Link } from 'office-ui-fabric-react/lib/Link';
 
 export default class AddGeneralProfile extends React.Component<IEmployeeMangementProps, ICreateUserProfile> {
     // public userProfileLoadData: IUserProfileLoadData;
@@ -77,29 +79,6 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         });
     }
 
-    private checkEmployeeExists(strEmpId, formikProps: FormikProps<FormikValues>): Promise<boolean> {
-        return cupOps.getEmployeeIdById(strEmpId, this.props).then((results) => {
-            if (results.length > 0) {
-                //formikProps.errors.Title = 'Employee Id already exists.'
-                formikProps.setFieldError('Title', 'Employee Id already exists.');
-                // formikProps.errors.Title = 'Employee Id already exists.';
-                document.getElementById('Title').focus();
-                return false;
-            } else {
-                //formikProps.errors.Title = ''
-                formikProps.setFieldError('Title', '');
-                // formikProps.errors.Title = '';
-                return true;
-            }
-        }).catch((e) => {
-            //formikProps.errors.Title = 'Error while extracting Id\'s'
-            formikProps.setFieldError('Title', 'Error while extracting Id\'s');
-            // formikProps.errors.Title = 'Error while extracting Id\'s';
-            document.getElementById('Title').focus();
-            return false;
-        })
-    }
-
     public render(): React.ReactElement<IEmployeeMangementProps> {
         const {
             description,
@@ -111,7 +90,6 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 .test('Title', 'Employee Id already exists.',
                     async (strEmpId) => {
                         if (!strEmpId) return false;
-                        // if (document.activeElement !== document.getElementById('Title')) {
                         if (this.isOnEmpId) {
                             return cupOps.getEmployeeIdById(strEmpId, this.props).then((results) => {
                                 if (results.length > 0) {
@@ -130,10 +108,6 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                             // this.isOnEmpId = false;
                             return true;
                         }
-                        // }
-                        // else {
-                        //     return true;
-                        // }
                     }
                 )
             , UserNameId: yup.string().required('Valid user is required.')
@@ -152,7 +126,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
             , AlternateEmail: yup.string().trim().required('Email is required.')
             , Nationality: yup.string().trim().required('Nationality is required.')
             , AadharCardNo: yup.string().trim().required('Aadhar Card No is required.')
-            , PAN_x0020_No: yup.string().trim().required('Nationality is required.')
+            , PAN_x0020_No: yup.string().trim().required('PAN No is required.')
             , OfficeLocationId: yup.string().trim().required('Office Location is required.')
             , Role: yup.string().trim().required('Role is required.')
             , ScaleId: yup.string().trim().required('Scale is required.')
@@ -167,10 +141,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
             , ShiftEffectiveFrom: yup.date().nullable().required('Shift Effective From is required.').typeError('A valid date is required')
             , LeaveLevel1Id: yup.string().required('Valid user is required.')
             , LeaveLevel2Id: yup.string().required('Valid user is required.')
-            , TrainingNCertificateColl: yup.array().of(yup.object().shape({
+            , TrainingNCertificate: yup.array().of(yup.object().shape({
                 ExperienceInId: yup.string().required('Type is required')
                 , Institute: yup.string().required('Institute is required')
-                , TrainingCost: yup.string().required('Training Cost is required')
+                , TrainingCost: yup.number().typeError('Training Cost should be a number').required('Training Cost is required')
                 , Location: yup.string().required('Location is required')
                 , Description: yup.string().required('Description is required')
                 , StartDate: yup.date().nullable().required('Start Date is required.').typeError('A valid date is required')
@@ -183,10 +157,13 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 enableReinitialize={false} validateOnBlur={true} validateOnChange={true}
                 onSubmit={(values, actions) => {
                     // console.log('Submitted:', values);
-                    this.onProfileSubmit(values, actions);
+                    // this.onProfileSubmit(values, actions);
                 }}>
                 {(formik) => (
-                    <form onSubmit={formik.handleSubmit}>
+                    <form onSubmit={formik.handleSubmit} onBlur={(ev) => {
+                        this.props.onFormValidationChange(formik.isValid, formik.values);
+                    }}>
+                        {/* {(formik.isValid && Object.keys(formik.errors).length === 0) && (this.props.onFormValidationChange(formik.isValid, formik.values))} */}
                         {/* <TextField className='form-control' placeholder='Auto Generated' id='Title' name='Title'
                             // onBlur={(e) => {
                             //     formik.setFieldTouched('Title', true);
@@ -201,6 +178,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
 
                         <div className='body-content'>
                             <div className='row'>
+                                {/* <pre>{JSON.stringify({ IsValid: formik.isValid, Errors: Object.keys(formik.errors).length }, null, 2)}</pre> */}
                                 <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
                                     <div className='widget-card'>
                                         <div className='scrollable-pane-container'>
@@ -276,7 +254,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Employee Type:&nbsp;</Label>
-                                                                            <Dropdown className='form-control' placeHolder='Select Type' id='EmployeeType' options={
+                                                                            <Dropdown className='form-control' placeHolder='Select Type' id='EmployeeTypeId' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.EmployeeTypeChoices : []
                                                                             } required={true}
                                                                                 onFocus={(e) => {
@@ -418,8 +396,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Blood Group:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Blood Group' className='form-control'
-                                                                                options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BloodGroupChoices : []} />
+                                                                            <Dropdown placeHolder='Select Blood Group' className='form-control' id='BloodGroup'
+                                                                                options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BloodGroupChoices : []}
+                                                                                onChanged={(val) => { formik.setFieldValue('BloodGroup', val.key); }}
+                                                                            />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Date of Birth:&nbsp;</Label>
@@ -475,7 +455,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Marital Status:&nbsp;</Label>
-                                                                            <Dropdown placeHolder='Select Marital Status' className='form-control' options={
+                                                                            <Dropdown placeHolder='Select Marital Status' className='form-control' id='MartialStatus' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.MaritalStatusChoices : []
                                                                             } required={true}
                                                                                 onFocus={(e) => {
@@ -727,12 +707,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Name:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Bank' className='form-control' id='BankNameId'
+                                                                            options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BankChoices : []}
+                                                                            onChanged={(val) => { formik.setFieldValue('BankNameId', val.key); }}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Branch:&nbsp;</Label>
@@ -785,7 +763,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Office' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Office' className='form-control' id='OfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -803,7 +781,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Role:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Role' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Role' className='form-control' id='Role' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.RoleChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -830,7 +808,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div> */}
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Scale:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Scale' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Scale' className='form-control' id='ScaleId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ScaleChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -849,7 +827,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Grade:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Grade' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Grade' className='form-control' id='GardeId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GradeChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -868,7 +846,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Designation:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Designation' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Designation' className='form-control' id='DesignationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.DesignationChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -887,7 +865,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Pay Scale:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Pay Scale' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Pay Scale' className='form-control' id='PayscaleId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.PayScaleChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -932,7 +910,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Group' className='form-control' multiSelect={true} options={
+                                                                        <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId' multiSelect={true} options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -944,23 +922,22 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 // console.log(formik);
                                                                             }}
                                                                             onChanged={(val) => {
-                                                                                formik.setFieldValue('SubGroupId', val.key);
+                                                                                InitializedUserProfile.SubGroupId.push(val.key as never)
+                                                                                formik.setFieldValue('SubGroupId', InitializedUserProfile.SubGroupId);
                                                                             }}
                                                                             errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
                                                                         />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Unit:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            [
-                                                                                { key: 'A', text: 'ICICI' },
-                                                                                { key: 'B', text: 'HDFC' }
-                                                                            ]
-                                                                        } />
+                                                                        <Dropdown placeHolder='Select Unit' className='form-control' id='UnitId'
+                                                                            options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.UnitChoices : []}
+                                                                            onChanged={(val) => { formik.setFieldValue('UnitId', val.key); }}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Current Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Current Office' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Current Office' className='form-control' id='CurrentOfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -993,7 +970,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Deputation Office Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Deputation Office' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Deputation Office' className='form-control' id='DeputationOfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -1012,7 +989,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Shift Allocated:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Shift Allocated' className='form-control' options={
+                                                                        <Dropdown placeHolder='Select Shift Allocated' className='form-control' id='ShiftAllocatedId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ShiftAllocatedChoices : []
                                                                         } required={true}
                                                                             onFocus={(e) => {
@@ -1112,6 +1089,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
+                                                                        <ErrorMessage name='LeaveLevel1Id' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item' onFocus={(ev) => {
                                                                         formik.setFieldTouched('LeaveLevel2Id', true);
@@ -1135,6 +1113,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
+                                                                        <ErrorMessage name='LeaveLevel2Id' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Paternity Leave Count:&nbsp;</Label>
@@ -1168,133 +1147,168 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                         </Sticky>
                                                         <div className='widget-card-body'>
                                                             <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
-                                                                <div className='row'>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Training Certification:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Type' className='form-control' options={
-                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingCertificationChoices : []
-                                                                        } required={true}
-                                                                            onFocus={(e) => {
-                                                                                formik.setFieldTouched('ExperienceInId', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onBlur={(e) => {
-                                                                                formik.setFieldTouched('ExperienceInId', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onChanged={(val) => {
-                                                                                formik.setFieldValue('ExperienceInId', val.key);
-                                                                            }}
-                                                                            errorMessage={formik.errors.ExperienceInId && formik.touched.ExperienceInId ? formik.errors.ExperienceInId as string : ''}
-                                                                         />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Training Certifying Institute:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='Institute' name='Institute' required={true}
-                                                                            onFocus={(e) => {
-                                                                                formik.setFieldTouched('Institute', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onBlur={(e) => {
-                                                                                formik.setFieldTouched('Institute', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onChanged={(val) => {
-                                                                                formik.setFieldValue('Institute', val);
-                                                                            }}
-                                                                            errorMessage={formik.errors.Institute && formik.touched.Institute ? formik.errors.Institute as string : ''}
-                                                                        ></TextField>
-                                                                        <ErrorMessage name='Institute' component='div' className='error-message' />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Traning Cost:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='TrainingCost' name='TrainingCost' required={true}
-                                                                            onFocus={(e) => {
-                                                                                formik.setFieldTouched('TrainingCost', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onBlur={(e) => {
-                                                                                formik.setFieldTouched('TrainingCost', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onChanged={(val) => {
-                                                                                formik.setFieldValue('TrainingCost', val);
-                                                                            }}
-                                                                            errorMessage={formik.errors.TrainingCost && formik.touched.TrainingCost ? formik.errors.TrainingCost as string : ''}
-                                                                        ></TextField>
-                                                                        <ErrorMessage name='TrainingCost' component='div' className='error-message' />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Location:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Bank' className='form-control' options={
-                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingNCertificationLocationChoices : []
-                                                                        } required={true}
-                                                                            onFocus={(e) => {
-                                                                                formik.setFieldTouched('Location', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onBlur={(e) => {
-                                                                                formik.setFieldTouched('Location', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onChanged={(val) => {
-                                                                                formik.setFieldValue('Location', val.key);
-                                                                            }}
-                                                                            errorMessage={formik.errors.Location && formik.touched.Location ? formik.errors.Location as string : ''}
-                                                                          />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Description:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='Description' name='Description' required={true}
-                                                                            onFocus={(e) => {
-                                                                                formik.setFieldTouched('Description', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onBlur={(e) => {
-                                                                                formik.setFieldTouched('Description', true);
-                                                                                // console.log(formik);
-                                                                            }}
-                                                                            onChanged={(val) => {
-                                                                                formik.setFieldValue('Description', val);
-                                                                            }}
-                                                                            errorMessage={formik.errors.Description && formik.touched.Description ? formik.errors.Description as string : ''}
-                                                                        ></TextField>
-                                                                        <ErrorMessage name='Description' component='div' className='error-message' />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>Start Date&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
-                                                                            // value={formik.values.TrainingNCertificateColl.StartDate}
-                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}
-                                                                            onSelectDate={(val) => {
-                                                                                // formik.setFieldTouched('StartDate', true);
-                                                                                formik.setFieldValue('StartDate', val);
-                                                                            }}
-                                                                            onAfterMenuDismiss={() => {
-                                                                                formik.setFieldTouched('StartDate', true);
-                                                                            }}
-                                                                        ></DatePicker>
-                                                                        <ErrorMessage name='StartDate' component='div' className='error-message' />
-                                                                    </div>
-                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
-                                                                        <Label>End Date&nbsp;</Label>
-                                                                        <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
-                                                                            // value={formik.values.TrainingNCertificateColl.EndDate}
-                                                                            maxDate={new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())}
-                                                                            onSelectDate={(val) => {
-                                                                                // formik.setFieldTouched('EndDate', true);
-                                                                                formik.setFieldValue('EndDate', val);
-                                                                            }}
-                                                                            onAfterMenuDismiss={() => {
-                                                                                formik.setFieldTouched('EndDate', true);
-                                                                            }}
-                                                                        ></DatePicker>
-                                                                        <ErrorMessage name='EndDates' component='div' className='error-message' />
-                                                                    </div>
-                                                                </div>
+                                                                <FieldArray name='TrainingNCertificate'>
+                                                                    {faProps => (<div>{
+                                                                        formik.values && formik.values.TrainingNCertificate
+                                                                            && formik.values.TrainingNCertificate.length > 0 ? (
+                                                                            formik.values.TrainingNCertificate.map((tnc: ITrainingNCertification, n: number) => (
+                                                                                <div key={n}>
+                                                                                    <div className='row'>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Training Certification:&nbsp;</Label>
+                                                                                            <Dropdown placeHolder='Select Type' className='form-control' id={`TrainingNCertificate.${n}.ExperienceInId`} options={
+                                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingCertificationChoices : []
+                                                                                            } required={true}
+                                                                                                onFocus={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.ExperienceInId`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onBlur={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.ExperienceInId`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onChanged={(val) => {
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.ExperienceInId`, val.key);
+                                                                                                }}
+                                                                                                errorMessage={formik.errors[`TrainingNCertificate.${n}.ExperienceInId`] && formik.touched[`TrainingNCertificate.${n}.ExperienceInId`] ? formik.errors[`TrainingNCertificate.${n}.ExperienceInId`] as string : ''}
+                                                                                            />
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.ExperienceInId`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Training Certifying Institute:&nbsp;</Label>
+                                                                                            <TextField className='form-control' id={`TrainingNCertificate.${n}.Institute`} name={`TrainingNCertificate.${n}.Institute`} required={true}
+                                                                                                onFocus={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Institute`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onBlur={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Institute`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onChanged={(val) => {
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.Institute`, val);
+                                                                                                }}
+                                                                                                errorMessage={formik.errors[`TrainingNCertificate.${n}.Institute`] && formik.touched[`TrainingNCertificate.${n}.Institute`] ? formik.errors[`TrainingNCertificate.${n}.Institute`] as string : ''}
+                                                                                            ></TextField>
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.Institute`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Traning Cost:&nbsp;</Label>
+                                                                                            <TextField type='number' className='form-control' id={`TrainingNCertificate.${n}.TrainingCost`} name={`TrainingNCertificate.${n}.TrainingCost`} required={true}
+                                                                                                onFocus={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.TrainingCost`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onBlur={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.TrainingCost`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onChanged={(val) => {
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.TrainingCost`, val);
+                                                                                                }}
+                                                                                                errorMessage={formik.errors[`TrainingNCertificate.${n}.TrainingCost`] && formik.touched[`TrainingNCertificate.${n}.TrainingCost`] ? formik.errors[`TrainingNCertificate.${n}.TrainingCost`] as string : ''}
+                                                                                            ></TextField>
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.TrainingCost`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Location:&nbsp;</Label>
+                                                                                            <Dropdown placeHolder='Select Location' className='form-control' id='Location' options={
+                                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingNCertificationLocationChoices : []
+                                                                                            } required={true}
+                                                                                                onFocus={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Location`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onBlur={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Location`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onChanged={(val) => {
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.Location`, val.key);
+                                                                                                }}
+                                                                                                errorMessage={formik.errors[`TrainingNCertificate.${n}.Location`] && formik.touched[`TrainingNCertificate.${n}.Location`] ? formik.errors[`TrainingNCertificate.${n}.Location`] as string : ''}
+                                                                                            />
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.Location`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Description:&nbsp;</Label>
+                                                                                            <TextField className='form-control' id={`TrainingNCertificate.${n}.Description`} name={`TrainingNCertificate.${n}.Description`} required={true}
+                                                                                                onFocus={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Description`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onBlur={(e) => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.Description`, true);
+                                                                                                    // console.log(formik);
+                                                                                                }}
+                                                                                                onChanged={(val) => {
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.Description`, val);
+                                                                                                }}
+                                                                                                errorMessage={formik.errors.Description && formik.touched.Description ? formik.errors.Description as string : ''}
+                                                                                            ></TextField>
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.Description`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>Start Date&nbsp;</Label>
+                                                                                            <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                                                value={formik.values.TrainingNCertificate[n].StartDate}
+                                                                                                maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 3, new Date().getDate())}
+                                                                                                onSelectDate={(val) => {
+                                                                                                    // formik.setFieldTouched('StartDate', true);
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.StartDate`, val);
+                                                                                                }}
+                                                                                                onAfterMenuDismiss={() => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.StartDate`, true);
+                                                                                                }}
+                                                                                            ></DatePicker>
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.StartDate`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <Label>End Date&nbsp;</Label>
+                                                                                            <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date' isRequired={true}
+                                                                                                value={formik.values.TrainingNCertificate[n].EndDate}
+                                                                                                maxDate={new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())}
+                                                                                                onSelectDate={(val) => {
+                                                                                                    // formik.setFieldTouched('EndDate', true);
+                                                                                                    formik.setFieldValue(`TrainingNCertificate.${n}.EndDate`, val);
+                                                                                                }}
+                                                                                                onAfterMenuDismiss={() => {
+                                                                                                    formik.setFieldTouched(`TrainingNCertificate.${n}.EndDate`, true);
+                                                                                                }}
+                                                                                            ></DatePicker>
+                                                                                            <ErrorMessage name={`TrainingNCertificate.${n}.EndDate`} component='div' className='error-message' />
+                                                                                        </div>
+                                                                                        <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                                            <span className='line-item-icon'>
+                                                                                                {(formik.values.TrainingNCertificate.length == n + 1) && (
+                                                                                                    <Link type='button' onClick={() => {
+                                                                                                        faProps.push(InitializedUserProfile.TrainingNCertificate);
+                                                                                                    }}>
+                                                                                                        <Icon iconName='CircleAdditionSolid' />
+                                                                                                    </Link>
+                                                                                                )}
+                                                                                            </span>
+                                                                                            <span className='line-item-icon'>
+                                                                                                {(formik.values.TrainingNCertificate.length > 1) && (
+                                                                                                    <Link type='button' onClick={() => {
+                                                                                                        faProps.remove(n);
+                                                                                                    }}>
+                                                                                                        <Icon iconName='SkypeCircleMinus' />
+                                                                                                    </Link>
+                                                                                                )}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="col-sm-12 col-md-12 col-lg-12 customDivSeprator"></div>
+                                                                                </div>
+                                                                            )
+                                                                            )) : (<div></div>)
+                                                                    }</div>)
+                                                                    }
+                                                                </FieldArray>
                                                             </div>
                                                         </div>
-                                                        <div className='col-sm-12 col-md-12 col-lg-12 customDivSeprator'></div>
+                                                        {/* <div className='col-sm-12 col-md-12 col-lg-12 customDivSeprator'></div> */}
                                                     </div>
                                                 </ScrollablePane>
                                             </div>
@@ -1303,13 +1317,12 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                             <div className='widget-card-body' style={{ height: 'auto' }}>
                                                 <div className='row'>
                                                     <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
-                                                        <PrimaryButton type='submit' data-automation-id='btn-save-profile' iconProps={{ iconName: 'Save' }}
-                                                            text='Submit Profile' onClick={() => { this.isFormValid = formik.isValid; }} />
+                                                        <PrimaryButton type='button' data-automation-id='btn-next-profile' iconProps={{ iconName: 'Next' }}
+                                                            text='Next' onClick={() => { this.props.onFormValidationChange(formik.isValid, formik.values) }} />
                                                     </div>
                                                 </div>
                                             </div>
-                                        )
-                                        }
+                                        )}
                                     </div>
                                 </div>
                             </div>

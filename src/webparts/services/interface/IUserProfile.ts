@@ -51,6 +51,7 @@ export interface IUserProfile {
     EmployeeType?: IEmployeeTypeMaster;
     EmployeeTypeId?: string | number,
     Unit?: IUnitMaster;
+    UnitId?: string | number;
     OfficeLocation?: IOfficeMaster;
     OfficeLocationId?: string | number;
     CurrentOfficeLocation?: IOfficeMaster;
@@ -68,6 +69,7 @@ export interface IUserProfile {
     EmployeeName?: string;
     PAN_x0020_No?: string;
     BankName?: IBankMaster;
+    BankNameId?: string | number;
     AccountNo?: string;
     PassportExpiryDate?: string;
     DOB?: Date | string;
@@ -240,6 +242,7 @@ export const InitializedUserProfile: IUserProfile = {
     EmployeeName: '',
     PAN_x0020_No: '',
     BankName: BankMaster,
+    BankNameId: '',
     AccountNo: '',
     PassportExpiryDate: '',
     DOB: null,

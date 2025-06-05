@@ -1,6 +1,6 @@
 import * as React from 'react';
-import styles from '../EmployeeMangement.module.scss';
-import { IEmployeeMangementProps } from '../IEmployeeMangementProps';
+import styles from '../../EmployeeMangement.module.scss';
+import { IEmployeeMangementProps } from '../../IEmployeeMangementProps';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 export default class UpdateUserProfile extends React.Component<IEmployeeMangementProps, {}> {

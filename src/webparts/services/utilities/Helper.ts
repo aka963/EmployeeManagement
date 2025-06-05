@@ -1,6 +1,7 @@
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { IAddressMaster } from '../interface/IAddressMaster';
 import { DataType } from '../interface/IMultiSPQuery';
+import { SelectableOptionMenuItemType } from 'office-ui-fabric-react/lib/utilities/selectableOption/SelectableOption.types';
 
 export default class Helper {
     public static getAddressByTpe(addressColl: IAddressMaster[], addressType: string): string {
@@ -64,7 +65,7 @@ export default class Helper {
 
     public static getDropDownOptions(dataType: DataType, choices: [], strPlaceholder: string, strTextTitle?: string): IDropdownOption[] {
         let ddOptions: IDropdownOption[] = [];
-        ddOptions.push({ index: 0, key: '', text: strPlaceholder });
+        ddOptions.push({ index: 0, key: '', text: strPlaceholder, itemType: SelectableOptionMenuItemType.Header });
 
         for (let i = 0; i < choices.length; i++) {
             if (dataType === DataType.ListItems) {

@@ -181,10 +181,10 @@ export default class CreateUserProfileOps {
                 , GradeChoices: Helper.getDropDownOptions(DataType.ListItems, resp[4], 'Select Grade', 'Title')
                 , ScaleChoices: Helper.getDropDownOptions(DataType.ListItems, resp[5], 'Select Scale', 'Title')
                 , PayScaleChoices: Helper.getDropDownOptions(DataType.ListItems, resp[6], 'Select Pay Scale', 'Title')
-                , ShiftAllocatedChoices: Helper.getDropDownOptions(DataType.ListItems, resp[7], 'Select Shift Allocated', 'Title')
-                , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select Sub Group', 'Title')
+                , ShiftAllocatedChoices: Helper.getDropDownOptions(DataType.ListItems, resp[7], 'Select Shift Allocated', 'ShiftName')
+                , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select Sub Group', 'SubGroup')
                 , UnitChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Unit', 'Title')
-                , TrainingCertificationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Type', 'Title')
+                , TrainingCertificationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[10], 'Select Type', 'Title')
 
                 , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[11].Choices, 'Select Blood Group')
                 , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[12].Choices, 'Select Contract Type')

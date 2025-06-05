@@ -21,7 +21,7 @@ export interface ITrainingNCertification {
     NoOfHours?: string;
     StartDate?: Date | string;
     TodayDate?: Date;
-    TrainingCost?: number;
+    TrainingCost?: string | number;
 }
 
 export const TrainingNCertification = {
@@ -44,5 +44,5 @@ export const TrainingNCertification = {
     NoOfHours: '',
     StartDate: null,
     TodayDate: null,
-    TrainingCost: 0,
+    TrainingCost: '',
 }
