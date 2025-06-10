@@ -18,10 +18,28 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
         super(props);
         const currNav: string = window.location.hash;
         if (currNav.split('/')[2]) {
-            this.state = { selectedLink: currNav.split('/')[2], userProfile: this.userProfile, isGeneralFormValid: false };
+            this.state = {
+                selectedLink: currNav.split('/')[2], userProfile: this.userProfile
+                , isGeneralFormValid: false
+                , isAddressFormValid: false
+                , isEducationFormValid: false
+                , isDependantsFormValid: false
+                , isExperienceFormValid: false
+                , isPromotionsFormValid: false
+                , isPostingFormValid: false
+            };
         }
         else {
-            this.state = { selectedLink: 'General', userProfile: this.userProfile, isGeneralFormValid: false };
+            this.state = {
+                selectedLink: 'General', userProfile: this.userProfile
+                , isGeneralFormValid: false
+                , isAddressFormValid: false
+                , isEducationFormValid: false
+                , isDependantsFormValid: false
+                , isExperienceFormValid: false
+                , isPromotionsFormValid: false
+                , isPostingFormValid: false
+            };
         }
 
         this.responseFromLeftNav = this.responseFromLeftNav.bind(this);
@@ -32,9 +50,17 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
         this.setState({ selectedLink: selLink });
     }
 
-    private formValidationChange(isValid: boolean, empProfile: IUserProfile): void {
-        console.log({ isGeneralFormValid: isValid, userProfile: empProfile });
-        this.setState({ isGeneralFormValid: isValid, userProfile: empProfile });
+    private formValidationChange(isGeneralFormValid: boolean, empProfile: IUserProfile): void {
+        this.setState({
+            isGeneralFormValid: isGeneralFormValid, userProfile: {
+                ...empProfile
+                , SubGroupId: { results: empProfile.SubGroupId as [] }
+                , WeeklyOff: empProfile.WeeklyOff.toString().replace(/,/g, '')
+            }
+        }
+            , () => {
+                console.log({ isGeneralFormValid: this.state.isGeneralFormValid, userProfile: this.state.userProfile });
+            });
     }
 
     private onProfileSubmit(): void {
@@ -70,7 +96,7 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
                             </div>
                             <div className='col-xs-10 col-sm-11 col-md-11 col-lg-11'>
                                 {(this.state.selectedLink === 'General') ?
-                                    <AddGeneralProfile {...this.props} sharedData={this.state.userProfile} onFormValidationChange={this.formValidationChange}/> : ''
+                                    <AddGeneralProfile {...this.props} sharedData={this.state.userProfile} onFormValidationChange={this.formValidationChange} /> : ''
                                 }
                                 {(this.state.isGeneralFormValid) && (
                                     <div className='widget-card-body' style={{ height: 'auto' }}>

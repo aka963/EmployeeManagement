@@ -36,7 +36,7 @@ const customPartialTheme: IPartialTheme = {
 const customTheme: ITheme = createTheme(customPartialTheme);
 loadTheme(customTheme);
 setTimeout(() => {
-    console.log('Loading custom theme');
+    // console.log('Loading custom theme');
     loadTheme(customTheme);
 }, 3000);
 

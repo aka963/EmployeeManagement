@@ -673,9 +673,23 @@ $ms-color-disabledText: #c8c8c8;
       // color: $ms-color-themePrimary !important;
     }
   }
-  
 
   .emp-mas-top-nav {
+    background-color: $ms-color-neutralDark !important;
+  }
+  
+  .emp-mas-top-nav-left {
+    color: $ms-color-white;
+    text-transform: uppercase;
+    font-weight: 600;
+    height: 36px;
+    align-content: center;
+     i {
+      font-size: 20px;
+     }
+  }
+
+  .emp-mas-top-nav-right {
     background-color: $ms-color-neutralDark !important;
     margin: 0px;
     div {

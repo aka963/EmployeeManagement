@@ -2,6 +2,7 @@ import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { IAddressMaster } from '../interface/IAddressMaster';
 import { DataType } from '../interface/IMultiSPQuery';
 import { SelectableOptionMenuItemType } from 'office-ui-fabric-react/lib/utilities/selectableOption/SelectableOption.types';
+import { IComboBoxOption } from 'office-ui-fabric-react';
 
 export default class Helper {
     public static getAddressByTpe(addressColl: IAddressMaster[], addressType: string): string {
@@ -63,18 +64,30 @@ export default class Helper {
         }
     }
 
-    public static getDropDownOptions(dataType: DataType, choices: [], strPlaceholder: string, strTextTitle?: string): IDropdownOption[] {
-        let ddOptions: IDropdownOption[] = [];
-        ddOptions.push({ index: 0, key: '', text: strPlaceholder, itemType: SelectableOptionMenuItemType.Header });
+    public static getDropDownOptions(dataType: DataType, choices: [], strPlaceholder: string, strTextTitle?: string, ismultiChoice?: boolean): IDropdownOption[] | IComboBoxOption[] {
+        let ddOptions: IDropdownOption[] | IComboBoxOption[] = [];
+        ddOptions.push({ index: 0, key: '', text: strPlaceholder });
 
         for (let i = 0; i < choices.length; i++) {
             if (dataType === DataType.ListItems) {
-                ddOptions.push({ index: (i + 1), key: choices[i]['Id'], text: choices[i][strTextTitle] });
-            } else if (dataType === DataType.Choices) {
-                ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i] });
+                ddOptions.push({ index: (i + 1), key: choices[i]['Id'], text: choices[i][strTextTitle], ariaLabel: choices[i][strTextTitle] });
+            } else if (dataType === DataType.Choices && !ismultiChoice) {
+                ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i], ariaLabel: choices[i] });
+            } else if (dataType === DataType.Choices && ismultiChoice) {
+                ddOptions.push({ index: (i + 1), key: choices[i] +';#', text: choices[i], ariaLabel: choices[i] });
             }
         }
 
         return ddOptions;
+    }
+
+    public static setMultiDropDownOptions(optionColl: [], option: IDropdownOption | IComboBoxOption) : [] {
+        let optionIndex = optionColl.indexOf(option.key as never, 0);
+        if (optionIndex > -1) {
+            optionColl.splice(optionIndex, 1);
+        } else {
+            optionColl.push(option.key as never);
+        }
+        return optionColl;
     }
 }

@@ -182,7 +182,7 @@ export default class CreateUserProfileOps {
                 , ScaleChoices: Helper.getDropDownOptions(DataType.ListItems, resp[5], 'Select Scale', 'Title')
                 , PayScaleChoices: Helper.getDropDownOptions(DataType.ListItems, resp[6], 'Select Pay Scale', 'Title')
                 , ShiftAllocatedChoices: Helper.getDropDownOptions(DataType.ListItems, resp[7], 'Select Shift Allocated', 'ShiftName')
-                , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select Sub Group', 'SubGroup')
+                , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select All', 'SubGroup')
                 , UnitChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Unit', 'Title')
                 , TrainingCertificationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[10], 'Select Type', 'Title')
 
@@ -195,7 +195,7 @@ export default class CreateUserProfileOps {
                 , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Probation Period')
                 , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Role')
                 , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Whether')
-                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select WeeklyOff')
+                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select Weekly Off', '', true)
                 , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Location')
             };
             return multiResults;

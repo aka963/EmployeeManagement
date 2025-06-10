@@ -20,6 +20,7 @@ import { IUnitMaster, UnitMaster } from "./IUnitMaster";
 import { IDropdownOption } from "office-ui-fabric-react/lib/Dropdown";
 import { number, string } from "yup";
 import { ITrainingCertificationMaster } from "./ITrainingCertificationMaster";
+import { EmployeeDocuments, IEmployeeDocuments } from "./IEmployeeDocuments";
 
 export interface IUserProfile {
     UserName?: IUserProps;
@@ -37,8 +38,8 @@ export interface IUserProfile {
     HHApproverName?: IUserProps;
     Author?: IUserProps;
     Editor?: IUserProps;
-    Created?: Date;
-    Modified?: Date;
+    Created?: Date | string
+    Modified?: Date | string
     MobileNo_x002e_?: string;
     Designation?: IDesignationMaster;
     DesignationId?: string | number;
@@ -61,7 +62,7 @@ export interface IUserProfile {
     CompanyEmail?: string;
     IFSCCode?: string;
     Phone_x0020_No?: string;
-    DateOfJoining?: Date;
+    DateOfJoining?: Date | string
     ShiftAllocated?: IShiftAllocatedMaster;
     ShiftAllocatedId?: string;
     FirstName?: string;
@@ -71,11 +72,11 @@ export interface IUserProfile {
     BankName?: IBankMaster;
     BankNameId?: string | number;
     AccountNo?: string;
-    PassportExpiryDate?: string;
+    PassportExpiryDate?: Date | string;
     DOB?: Date | string;
     Role?: string;
     SubGroup?: [ISubGroupMaster];
-    SubGroupId?: [];
+    SubGroupId?: [] | { results: [] };
     Id?: string;
     Title?: string;
     Gender?: string;
@@ -115,38 +116,39 @@ export interface IUserProfile {
     MaternityLeave_Count?: number;
     TotalEOL?: number;
     TotalMaternityLeave?: number;
-    Date_x0020_Of_x0020_Resign?: Date;
-    Date_x0020_Of_x0020_Resign_x0020?: Date;
-    DateofAppointment?: Date;
-    DateOfConfirmation?: Date;
-    DateOfPromotion?: Date;
-    DrivingLicenseExpiryDate?: Date;
+    Date_x0020_Of_x0020_Resign?: Date | string
+    Date_x0020_Of_x0020_Resign_x0020?: Date | string
+    DateofAppointment?: Date | string
+    DateOfConfirmation?: Date | string
+    DateOfPromotion?: Date | string
+    DrivingLicenseExpiryDate?: Date | string
     EffectiveDate?: Date | string;
-    ESI_x0020_JoiningDate?: Date;
-    ESI_x0020_LeavingDate?: Date;
-    LTCDate?: Date;
-    MarriageDate?: Date;
-    PassportIssueDate?: Date;
-    ShiftEffectiveFrom?: Date;
+    ESI_x0020_JoiningDate?: Date | string
+    ESI_x0020_LeavingDate?: Date | string
+    LTCDate?: Date | string
+    MarriageDate?: Date | string;
+    PassportIssueDate?: Date | string;
+    ShiftEffectiveFrom?: Date | string;
     TempDOB?: Date | string;
-    TodayDate?: Date;
+    TodayDate?: Date | string
     ContractType?: string;
     EmployeeTitle?: string;
     MartialStatus?: string;
     PhysicallyHandicaped?: string;
     ProbationPeriod?: string;
     SingleParent?: string;
-    WeeklyOff?: string;
+    WeeklyOff?: string | [];
     Religion?: string;
     Caste?: string;
     DesignationJoinedAs?: string;
-    AppointmentDate?: Date;
+    AppointmentDate?: Date | string
     DesignationAppointedAs?: string;
-    ConfirmationDate?: Date;
+    ConfirmationDate?: Date | string
     PromotionScale?: string;
-    PromotionEffectiveDate?: Date;
-    DesignationPromotedTo?: IDesignationMaster
-    PromotionConfirmationDate?: Date;
+    PromotionEffectiveDate?: Date | string;
+    DesignationPromotedTo?: IDesignationMaster;
+    PromotionConfirmationDate?: Date | string;
+    EmployeeDocuments?: IEmployeeDocuments[];
     EmergencyContact?: IEmergencyContact[];
     AddressMaster?: IAddressMaster[];
     RedemptionCode?: IRedemptionCode[];
@@ -309,7 +311,7 @@ export const InitializedUserProfile: IUserProfile = {
     PhysicallyHandicaped: '',
     ProbationPeriod: '',
     SingleParent: '',
-    WeeklyOff: '',
+    WeeklyOff: [],
     Religion: '',
     Caste: '',
     DesignationJoinedAs: '',
@@ -320,6 +322,7 @@ export const InitializedUserProfile: IUserProfile = {
     PromotionEffectiveDate: null,
     DesignationPromotedTo: DesignationMaster,
     PromotionConfirmationDate: null,
+    EmployeeDocuments: [{ ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }],
     EmergencyContact: [EmergencyContact],
     AddressMaster: [AddressMaster],
     RedemptionCode: [RedemptionCode],

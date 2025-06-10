@@ -58,7 +58,7 @@ export default class SpCrudOps {
         const listItemResult = [];
 
         return await batch.execute().then(async (resp) => {
-            console.log(resp);
+            // console.log(resp);
             for (let i = 0; i < listItemPromise.length; i++) {
                 const items = await listItemPromise[i];
                 listItemResult.push(items);
@@ -167,7 +167,7 @@ export default class SpCrudOps {
     public static async currentProfile(props: IEmployeeMangementProps): Promise<any> {
         return await sp.profiles.myProperties.get().then((response) => {
             // return await sp.web.currentUser.get().then((response)=>{
-            console.log(response);
+            // console.log(response);
             return response;
         });
     }
@@ -176,7 +176,7 @@ export default class SpCrudOps {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
         return await web.currentUser.get().then((response) => {
             // return await sp.web.currentUser.get().then((response)=>{
-            console.log(response);
+            // console.log(response);
             return response;
         });
     }
@@ -184,7 +184,7 @@ export default class SpCrudOps {
     public static async parentCurrentUserGroups(props: IEmployeeMangementProps): Promise<ISiteGroupInfo[]> {
         const web: IWeb = Web(window.location.protocol + '//' + window.location.host);
         return await web.currentUser.groups.get().then((response) => {
-            console.log(response);
+            // console.log(response);
             return response;
         });
     }
@@ -192,7 +192,7 @@ export default class SpCrudOps {
     public static async currentUserGroups(props: IEmployeeMangementProps): Promise<ISiteGroupInfo[]> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
         return await web.currentUser.groups.get().then((response) => {
-            console.log(response);
+            // console.log(response);
             return response;
         });
     }
@@ -200,7 +200,7 @@ export default class SpCrudOps {
     public static async getSiteUsers(props: IEmployeeMangementProps): Promise<ISiteUserInfo[]> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
         return await web.siteUsers.get().then((response) => {
-            console.log(response);
+            // console.log(response);
             return response;
         });
     }
@@ -269,7 +269,7 @@ export default class SpCrudOps {
         const choiceResult: IFieldInfo[] = [];
 
         return await batch.execute().then(async (resp) => {
-            console.log(resp);
+            // console.log(resp);
             for (let i = 0; i < columnChoicePromise.length; i++) {
                 const columns = await columnChoicePromise[i];
                 choiceResult.push(columns);
@@ -313,7 +313,7 @@ export default class SpCrudOps {
         const dataResults: any[] = [];
 
         return await batch.execute().then(async (resp) => {
-            console.log(resp);
+            // console.log(resp);
             for (let i = 0; i < dataPromise.length; i++) {
                 const results = await dataPromise[i];
                 dataResults.push(results);

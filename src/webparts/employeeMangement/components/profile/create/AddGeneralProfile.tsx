@@ -23,6 +23,8 @@ import cupOps from '../../../../services/bal/CreateUserProfileOps';
 import { IUserProfile, InitializedUserProfile, IUserProfileLoadData } from '../../../../services/interface/IUserProfile';
 import { ITrainingNCertification } from '../../../../services/interface/ITrainingNCertification';
 import { Link } from 'office-ui-fabric-react/lib/Link';
+import Helper from '../../../../services/utilities/Helper';
+import { IDropdownOption } from 'office-ui-fabric-react';
 
 export default class AddGeneralProfile extends React.Component<IEmployeeMangementProps, ICreateUserProfile> {
     // public userProfileLoadData: IUserProfileLoadData;
@@ -126,7 +128,106 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
             , AlternateEmail: yup.string().trim().required('Email is required.')
             , Nationality: yup.string().trim().required('Nationality is required.')
             , AadharCardNo: yup.string().trim().required('Aadhar Card No is required.')
+            , EmployeeDocuments: yup.array().of(yup.object().shape({
+                Title: yup.string(),
+                Document: yup.mixed().when('Title', {
+                    is: (Title) => Title && Title.trim() !== ""
+                    , then: yup.mixed().test(
+                        "fileRequired",
+                        "Document is required",
+                        (file) => {
+                            if (file && file.length > 0) {
+                                return true;
+                            } else {
+                                // document.getElementById('aadharCardDoc').focus();
+                                return false;
+                            }
+                        })
+                        .test(
+                            "fileType",
+                            "Only jpg, jpeg, png and PDFs are allowed.",
+                            (file) => {
+                                // If file is not selected, this test will not pass because of .required above.
+                                if (file && file.length > 0) {
+                                    // If your file input supports multiple files, check the first file, e.g., value[0]
+                                    return [
+                                        "image/jpeg",
+                                        "image/jpg",
+                                        "image/png",
+                                        "application/pdf"
+                                    ].includes(file[0].type);
+                                } else {
+                                    return true;
+                                }
+                            }
+                        )
+                        .test("fileName",
+                            "Please avoid special characters in document name",
+                            (file) => {
+                                if (file && file.length > 0) {
+                                    let spcPattern = new RegExp(/[!@#$%^&*(),+=;'?":[\]{}|/<>\\]/g);
+                                    if (!spcPattern.test(file[0].name)) {
+                                        return true;
+                                    }
+                                    else {
+                                        // document.getElementById('aadharCardDoc').focus();
+                                        return false;
+                                    }
+                                }
+                                else { return true; }
+                            })
+                        .test(
+                            "fileSize",
+                            "Please upload file of size less than 5 MB",
+                            (file) => {
+                                if (file && file.length > 0) {
+                                    const sizeInBytes = 5242880;
+                                    //console.log(file);
+                                    if (file[0].size <= sizeInBytes) {
+                                        return true;
+                                    } else {
+                                        // document.getElementById('aadharCardDoc').focus();
+                                        return false;
+                                    }
+                                }
+                                else { return true; }
+                            })
+                    , otherwise: yup.mixed()
+                })
+            }))
             , PAN_x0020_No: yup.string().trim().required('PAN No is required.')
+            , DrivingLicenseNumber: yup.string()
+            , DrivingLicenseExpiryDate: yup.date()
+                .transform((value, originalValue) => {
+                    return originalValue === "" ? null : value;
+                })
+                .nullable()
+                .when('DrivingLicenseNumber', {
+                    is: (DrivingLicenseNumber) => DrivingLicenseNumber && DrivingLicenseNumber.trim() !== ""
+                    , then: yup.date().required('Date is required.').typeError('A valid date is required')
+                    , otherwise: yup.date()
+                })
+            , PassportNo_x002e_: yup.string()
+            , PassportIssueDate: yup.date()
+                .transform((value, originalValue) => {
+                    return originalValue === "" ? null : value;
+                })
+                .nullable()
+                .when('PassportNo_x002e_', {
+                    is: (PassportNo_x002e_) => PassportNo_x002e_ && PassportNo_x002e_.trim() !== ""
+                    , then: yup.date().required('Date is required.').typeError('A valid date is required')
+                    , otherwise: yup.date()
+                })
+            , PassportExpiryDate: yup.date()
+                .transform((value, originalValue) => {
+                    return originalValue === "" ? null : value;
+                })
+                .nullable()
+                .when('PassportNo_x002e_', {
+                    is: (PassportNo_x002e_) => PassportNo_x002e_ && PassportNo_x002e_.trim() !== ""
+                    , then: yup.date().required('Date is required.').typeError('A valid date is required')
+                    , otherwise: yup.date()
+                })
             , OfficeLocationId: yup.string().trim().required('Office Location is required.')
             , Role: yup.string().trim().required('Role is required.')
             , ScaleId: yup.string().trim().required('Scale is required.')
@@ -473,7 +574,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Phone:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Phone_x0020_No' name='Phone_x0020_No'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Phone_x0020_No', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Mobile:&nbsp;</Label>
@@ -529,10 +633,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             ></TextField>
                                                                             <ErrorMessage name='AlternateEmail' component='div' className='error-message' />
                                                                         </div>
-                                                                        <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
+                                                                        {/* <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Office Extension:&nbsp;</Label>
                                                                             <TextField className='form-control'></TextField>
-                                                                        </div>
+                                                                        </div> */}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -554,35 +658,59 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='row'>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Employee Name:&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='EmployeeName' name='EmployeeName'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('EmployeeName', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Permanent Address:&nbsp;</Label>
-                                                                            <TextField className='form-control' multiline={true}></TextField>
+                                                                            <TextField className='form-control' multiline={true} id='PermanentAddress' name='PermanentAddress'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('PermanentAddress', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Name1' name='Name1'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Name1', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='EmergencyContactNumber1' name='EmergencyContactNumber1'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('EmergencyContactNumber1', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Relationship1' name='Relationship1'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Relationship1', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Name2' name='Name2'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Name2', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='EmergencyContactNumber2' name='EmergencyContactNumber2'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('EmergencyContactNumber2', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control'></TextField>
+                                                                            <TextField className='form-control' id='Relationship2' name='Relationship2'
+                                                                                onChanged={(val) => {
+                                                                                    formik.setFieldValue('Relationship2', val);
+                                                                                }}></TextField>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -633,16 +761,42 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('AadharCardNo', val);
+                                                                                formik.setFieldValue(`EmployeeDocuments.${0}.Title`, val);
+                                                                                // console.log(InitializedUserProfile.EmployeeDocuments)
                                                                             }}
                                                                             errorMessage={formik.errors.AadharCardNo && formik.touched.AadharCardNo ? formik.errors.AadharCardNo as string : ''}
                                                                         ></TextField>
                                                                         <ErrorMessage name='AadharCardNo' component='div' className='error-message' />
-                                                                        <input type='file' />
+                                                                        <input type='file' id={`EmployeeDocuments.${0}.Document`} name={`EmployeeDocuments.${0}.Document`} onBlur={formik.handleBlur}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${0}.Document`, files);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${0}.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        <ErrorMessage name={`EmployeeDocuments.${0}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Voter ID No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
-                                                                        <input type='file' />
+                                                                        <TextField className='form-control' id='VoterID_x0020_No' name='VoterID_x0020_No'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('VoterID_x0020_No', val);
+                                                                                formik.setFieldValue(`EmployeeDocuments.${1}.Title`, val);
+                                                                            }}></TextField>
+                                                                        <input type='file' id={`EmployeeDocuments.${1}.Document`} name={`EmployeeDocuments.${1}.Document`} onBlur={formik.handleBlur}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${1}.Document`, files);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${1}.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        <ErrorMessage name={`EmployeeDocuments.${1}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PAN No.:&nbsp;</Label>
@@ -657,36 +811,105 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('PAN_x0020_No', val);
+                                                                                formik.setFieldValue(`EmployeeDocuments.${2}.Title`, val);
                                                                             }}
                                                                             errorMessage={formik.errors.PAN_x0020_No && formik.touched.PAN_x0020_No ? formik.errors.PAN_x0020_No as string : ''}
                                                                         ></TextField>
                                                                         <ErrorMessage name='PAN_x0020_No' component='div' className='error-message' />
-                                                                        <input type='file' />
+                                                                        <input type='file' id={`EmployeeDocuments.${2}.Document`} name={`EmployeeDocuments.${2}.Document`} onBlur={formik.handleBlur}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${2}.Document`, files);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${2}.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        <ErrorMessage name={`EmployeeDocuments.${2}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Driver License No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
-                                                                        <input type='file' />
+                                                                        <TextField className='form-control' id='DrivingLicenseNumber' name='DrivingLicenseNumber'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('DrivingLicenseNumber', val);
+                                                                                formik.setFieldValue(`EmployeeDocuments.${3}.Title`, val);
+                                                                            }}></TextField>
+                                                                        <input type='file' id={`EmployeeDocuments.${3}.Document`} name={`EmployeeDocuments.${3}.Document`} onBlur={formik.handleBlur}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${3}.Document`, files);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${3}.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        <ErrorMessage name={`EmployeeDocuments.${3}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Expiry Date:&nbsp;</Label>
                                                                         <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear() + 20, new Date().getMonth(), new Date().getDate())}></DatePicker>
+                                                                            maxDate={new Date(new Date().getFullYear() + 20, new Date().getMonth(), new Date().getDate())}
+                                                                            value={formik.values.DrivingLicenseExpiryDate}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('DOB', true);
+                                                                                formik.setFieldValue('DrivingLicenseExpiryDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('DrivingLicenseExpiryDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='DrivingLicenseExpiryDate' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Passport No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
-                                                                        <input type='file' />
+                                                                        <TextField className='form-control' id='PassportNo_x002e_' name='PassportNo_x002e_'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PassportNo_x002e_', val);
+                                                                                formik.setFieldValue(`EmployeeDocuments.${4}.Title`, val);
+                                                                            }}></TextField>
+                                                                        <input type='file' id={`EmployeeDocuments.${4}.Document`} name={`EmployeeDocuments.${4}.Document`} onBlur={formik.handleBlur}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${4}.Document`, files);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${4}.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        <ErrorMessage name={`EmployeeDocuments.${4}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Issue Date:&nbsp;</Label>
                                                                         <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())}></DatePicker>
+                                                                            maxDate={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())}
+                                                                            value={formik.values.PassportIssueDate}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('DOB', true);
+                                                                                formik.setFieldValue('PassportIssueDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('PassportIssueDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='PassportIssueDate' component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Expiry Date:&nbsp;</Label>
                                                                         <DatePicker firstDayOfWeek={DayOfWeek.Sunday} placeholder='Select a date'
-                                                                            maxDate={new Date(new Date().getFullYear() + 10, new Date().getMonth(), new Date().getDate())}></DatePicker>
+                                                                            maxDate={new Date(new Date().getFullYear() + 10, new Date().getMonth(), new Date().getDate())}
+                                                                            value={formik.values.PassportExpiryDate}
+                                                                            onSelectDate={(val) => {
+                                                                                // formik.setFieldTouched('DOB', true);
+                                                                                formik.setFieldValue('PassportExpiryDate', val);
+                                                                            }}
+                                                                            onAfterMenuDismiss={() => {
+                                                                                formik.setFieldTouched('PassportExpiryDate', true);
+                                                                            }}
+                                                                        ></DatePicker>
+                                                                        <ErrorMessage name='PassportExpiryDate' component='div' className='error-message' />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -714,35 +937,59 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Branch:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='BranchName' name='BranchName'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('BranchName', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Account No.:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='AccountNo' name='AccountNo'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('AccountNo', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>IFSC Code:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='IFSCCode' name='IFSCCode'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('IFSCCode', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PF Number:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='PFNumber' name='PFNumber'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PFNumber', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>ESIC Number:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='ESICNumber' name='ESICNumber'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('ESICNumber', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>ESIC Remark:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='ESIC_x0020_Remarks' name='ESIC_x0020_Remarks'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('ESIC_x0020_Remarks', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PRAN Number:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='PranNo' name='PranNo'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PranNo', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>NPS:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='NPS' name='NPS'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('NPS', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -884,11 +1131,42 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Weekly Off:&nbsp;</Label>
-                                                                        <Checkbox />
+                                                                        {/* <Checkbox /> */}
+                                                                        <Dropdown placeHolder='Select Weekly Off' className='form-control' id='WeeklyOff' selectedKeys={this.state.userProfile.WeeklyOff as []}
+                                                                            multiSelect={true} options={
+                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.WeeklyOffChoices : []
+                                                                            }
+                                                                            onRenderTitle={(ddOptions: IDropdownOption[]) => {
+                                                                                return <span>{ddOptions.filter(option => option.key !== '').map(val => val.text).join(', ')}</span>;
+                                                                            }}
+                                                                            onChanged={(option) => {
+                                                                                if (option.key === '' && option.selected === true) {
+                                                                                    InitializedUserProfile.WeeklyOff = this.state.userProfileLoadData.WeeklyOffChoices.map(opt => opt.key) as [];
+                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                } else if (option.key === '' && option.selected === false) {
+                                                                                    InitializedUserProfile.WeeklyOff = [];
+                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                }
+                                                                                else {
+                                                                                    InitializedUserProfile.WeeklyOff = formik.values.WeeklyOff.length > 0 ? formik.values.WeeklyOff : [];
+                                                                                    InitializedUserProfile.WeeklyOff = Helper.setMultiDropDownOptions(InitializedUserProfile.WeeklyOff as [], option);
+                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } }, () => {
+                                                                                        console.log(this.state.userProfile.WeeklyOff);
+                                                                                    });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                }
+                                                                                formik.setFieldValue('WeeklyOff', InitializedUserProfile.WeeklyOff.filter(val => val !== ''));
+                                                                                console.log(this.state.userProfile.WeeklyOff);
+                                                                            }}
+                                                                        />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Is Active?:&nbsp;</Label>
-                                                                        <Checkbox />
+                                                                        <Checkbox id='Active' name='Active' onChange={(val, checked) => {
+                                                                            formik.setFieldValue('Active', checked);
+                                                                        }} />
                                                                     </div>
 
                                                                 </div>
@@ -910,9 +1188,13 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId' multiSelect={true} options={
-                                                                            (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
-                                                                        } required={true}
+                                                                        <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId' selectedKeys={this.state.userProfile.SubGroupId as []}
+                                                                            multiSelect={true} required={true} options={
+                                                                                (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
+                                                                            }
+                                                                            onRenderTitle={(ddOptions: IDropdownOption[]) => {
+                                                                                return <span>{ddOptions.filter(option => option.key !== '').map(val => val.text).join(', ')}</span>;
+                                                                            }}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('SubGroupId', true);
                                                                                 // console.log(formik);
@@ -921,9 +1203,24 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldTouched('SubGroupId', true);
                                                                                 // console.log(formik);
                                                                             }}
-                                                                            onChanged={(val) => {
-                                                                                InitializedUserProfile.SubGroupId.push(val.key as never)
-                                                                                formik.setFieldValue('SubGroupId', InitializedUserProfile.SubGroupId);
+                                                                            onChanged={(option) => {
+                                                                                if (option.key === '' && option.selected === true) {
+                                                                                    InitializedUserProfile.SubGroupId = this.state.userProfileLoadData.SubGroupChoices.map(opt => opt.key) as [];
+                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                } else if (option.key === '' && option.selected === false) {
+                                                                                    InitializedUserProfile.SubGroupId = [];
+                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                }
+                                                                                else {
+                                                                                    InitializedUserProfile.SubGroupId = formik.values.SubGroupId.length > 0 ? formik.values.SubGroupId : [];
+                                                                                    InitializedUserProfile.SubGroupId = Helper.setMultiDropDownOptions(InitializedUserProfile.SubGroupId as [], option);
+                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
+                                                                                }
+                                                                                formik.setFieldValue('SubGroupId', InitializedUserProfile.SubGroupId.filter(val => val !== ''));
+                                                                                console.log(this.state.userProfile.SubGroupId);
                                                                             }}
                                                                             errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
                                                                         />
@@ -1117,19 +1414,31 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Paternity Leave Count:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='PaternityLeaveCount' name='PaternityLeaveCount'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('PaternityLeaveCount', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Maternity Leave Count:&nbsp;</Label>
-                                                                        <TextField className='form-control'></TextField>
+                                                                        <TextField className='form-control' id='MaternityLeave_Count' name='MaternityLeave_Count'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('MaternityLeave_Count', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Total days of EOL:&nbsp;</Label>
-                                                                        <TextField className='form-control' placeholder='Extraordinary Leave'></TextField>
+                                                                        <TextField className='form-control' placeholder='Extraordinary Leave' id='TotalEOL' name='TotalEOL'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('TotalEOL', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Total days of ML:&nbsp;</Label>
-                                                                        <TextField className='form-control' placeholder='Medical Leave'></TextField>
+                                                                        <TextField className='form-control' placeholder='Medical Leave' id='TotalMaternityLeave' name='TotalMaternityLeave'
+                                                                            onChanged={(val) => {
+                                                                                formik.setFieldValue('TotalMaternityLeave', val);
+                                                                            }}></TextField>
                                                                     </div>
                                                                 </div>
                                                             </div>
