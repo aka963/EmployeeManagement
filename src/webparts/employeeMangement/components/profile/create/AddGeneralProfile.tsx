@@ -20,8 +20,8 @@ import * as yup from 'yup';
 
 import cupOps from '../../../../services/bal/CreateUserProfileOps';
 
-import { IUserProfile, InitializedUserProfile, IUserProfileLoadData } from '../../../../services/interface/IUserProfile';
-import { ITrainingNCertification } from '../../../../services/interface/ITrainingNCertification';
+import { IUserProfile, IUserProfileLoadData } from '../../../../services/interface/IUserProfile';
+import { ITrainingNCertification, TrainingNCertification } from '../../../../services/interface/ITrainingNCertification';
 import { Link } from 'office-ui-fabric-react/lib/Link';
 import Helper from '../../../../services/utilities/Helper';
 import { IDropdownOption } from 'office-ui-fabric-react';
@@ -31,11 +31,15 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
     public isOnEmpId: boolean = false;
     public formikInstance: Formik;
     public isFormValid: boolean = false;
+    public InitializedUserProfile: IUserProfile;
     constructor(props: IEmployeeMangementProps) {
         super(props);
         this.formikInstance = null;
-        // Helper.assignDefaults((typeof this.userProfile));
-        this.state = { userProfile: InitializedUserProfile };
+        // this.state = { userProfile: InitializedUserProfile, userProfileLoadData: props.sharedData.userProfileLoadData };
+        this.state = { userProfile: props.sharedData.userProfile, userProfileLoadData: props.sharedData.userProfileLoadData };
+        this.setState({ userProfile: { SubGroupId: props.sharedData.userProfile.SubGroupId } });
+        this.InitializedUserProfile = props.sharedData.userProfile;
+        this.InitializedUserProfile.SubGroupId = props.sharedData.userProfile.SubGroupId['results'] ? props.sharedData.userProfile.SubGroupId['results'] : props.sharedData.userProfile.SubGroupId as [];
         this._getPeoplePickerItems = this._getPeoplePickerItems.bind(this);
         this.onProfileSubmit = this.onProfileSubmit.bind(this);
         this.setFormikInstance = this.setFormikInstance.bind(this);
@@ -74,11 +78,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 // this.formikInstance.validateField('UserNameId');
             });
         }
+        // if (this.state.userProfile.SubGroupId['results']) {
+        //     this.setState({ userProfile: { SubGroupId: this.state.userProfile.SubGroupId['results'] } })
+        // }
 
-        cupOps.getUserProfileDataOnLoad(this.props).then((resp) => {
-            this.setState({ userProfileLoadData: resp });
-            // console.log(resp);
-        });
+        // cupOps.getUserProfileDataOnLoad(this.props).then((resp) => {
+        //     this.setState({ userProfileLoadData: resp });
+        //     // console.log(resp);
+        // });
     }
 
     public render(): React.ReactElement<IEmployeeMangementProps> {
@@ -234,7 +241,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
             , GardeId: yup.string().trim().required('Garde is required.')
             , DesignationId: yup.string().trim().required('Designation is required.')
             , PayscaleId: yup.string().trim().required('Payscale is required.')
-            , SubGroupId: yup.array().of(yup.string().required('Group cannot be empty')).min(1, 'Please add at least one Group').required('Group is required')
+            , SubGroupId: yup.array().min(1, 'Please add at least one Group').required('Group is required')
             , CurrentOfficeLocationId: yup.string().trim().required('Current Office Location is required.')
             , EffectiveDate: yup.date().nullable().required('Effective Date is required.').typeError('A valid date is required')
             , DeputationOfficeLocationId: yup.string().trim().required('Deputation Office Location is required.')
@@ -254,7 +261,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         });
 
         return (
-            <Formik ref={this.setFormikInstance} initialValues={InitializedUserProfile} validationSchema={validate}
+            <Formik ref={this.setFormikInstance} initialValues={this.InitializedUserProfile} validationSchema={validate}
                 enableReinitialize={false} validateOnBlur={true} validateOnChange={true}
                 onSubmit={(values, actions) => {
                     // console.log('Submitted:', values);
@@ -262,7 +269,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 }}>
                 {(formik) => (
                     <form onSubmit={formik.handleSubmit} onBlur={(ev) => {
-                        this.props.onFormValidationChange(formik.isValid, formik.values);
+                        this.props.onFormValidationChange(formik.isValid, formik.values, 'General');
                     }}>
                         {/* {(formik.isValid && Object.keys(formik.errors).length === 0) && (this.props.onFormValidationChange(formik.isValid, formik.values))} */}
                         {/* <TextField className='form-control' placeholder='Auto Generated' id='Title' name='Title'
@@ -300,7 +307,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='row'>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>ID:&nbsp;</Label>
-                                                                            <TextField className='form-control' name='Title' id='Title' required={true}
+                                                                            <TextField className='form-control' name='Title' id='Title' required={true} value={formik.values.Title}
                                                                                 onFocus={(e) => {
                                                                                     this.isOnEmpId = true;
                                                                                     formik.setFieldTouched('Title', true);
@@ -328,27 +335,22 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         }}>
                                                                             <Label>Username:&nbsp;</Label>
                                                                             <PeoplePicker peoplePickerCntrlclassName='form-control'
-                                                                                context={this.props.currentSPContext}
-                                                                                personSelectionLimit={1}
-                                                                                tooltipDirectional={1}
+                                                                                context={this.props.currentSPContext} personSelectionLimit={1} tooltipDirectional={1}
                                                                                 selectedItems={(items) => {
                                                                                     this._getPeoplePickerItems(items, formik, 'UserNameId', 'UserName');
                                                                                     // formik.setFieldValue('Level1Approver', items);
                                                                                 }}
-                                                                                principalTypes={[PrincipalType.User]}
-                                                                                ensureUser={true}
-                                                                                // resolveDelay={1000}
+                                                                                principalTypes={[PrincipalType.User]} ensureUser={true} resolveDelay={1000}
                                                                                 placeholder='Enter names or email addresses...'
                                                                                 errorMessage='Please enter valid user'
-                                                                                isRequired={true}
-                                                                                webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
-                                                                                showRequiredError={true}
+                                                                                isRequired={true} webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
+                                                                                showRequiredError={true} defaultSelectedUsers={[this.InitializedUserProfile.UserName.Email]}
                                                                             />
                                                                             <ErrorMessage name='UserNameId' component='div' className='error-message' />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Ext:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Extension' name='Extension'
+                                                                            <TextField className='form-control' id='Extension' name='Extension' value={formik.values.Extension}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Extension', val);
                                                                                 }}></TextField>
@@ -357,7 +359,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             <Label>Employee Type:&nbsp;</Label>
                                                                             <Dropdown className='form-control' placeHolder='Select Type' id='EmployeeTypeId' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.EmployeeTypeChoices : []
-                                                                            } required={true}
+                                                                            } required={true} selectedKey={formik.values.EmployeeTypeId}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('EmployeeTypeId', true);
                                                                                     // console.log(formik);
@@ -376,7 +378,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             <Label>Title:&nbsp;</Label>
                                                                             <Dropdown className='form-control' placeHolder='Select Title' id='EmployeeTitle' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.EmployeeTitleChoices : []
-                                                                            } required={true}
+                                                                            } required={true} selectedKey={formik.values.EmployeeTitle}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('EmployeeTitle', true);
                                                                                     // console.log(formik);
@@ -394,7 +396,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>First Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='FirstName' name='FirstName' required={true}
+                                                                            <TextField className='form-control' id='FirstName' name='FirstName' required={true} value={formik.values.FirstName}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('FirstName', true);
                                                                                     // console.log(formik);
@@ -412,7 +414,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Middle Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='MiddleName' name='MiddleName' required={true}
+                                                                            <TextField className='form-control' id='MiddleName' name='MiddleName' required={true} value={formik.values.MiddleName}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('MiddleName', true);
                                                                                 }}
@@ -427,7 +429,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Last Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='LastName' name='LastName' required={true}
+                                                                            <TextField className='form-control' id='LastName' name='LastName' required={true} value={formik.values.LastName}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('LastName', true);
                                                                                     // console.log(formik);
@@ -444,35 +446,35 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>First Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='FirstName_Hindi' name='FirstName_Hindi'
+                                                                            <TextField className='form-control' id='FirstName_Hindi' name='FirstName_Hindi' value={formik.values.FirstName_Hindi}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('FirstName_Hindi', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Middle Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='MiddleName_Hindi' name='MiddleName_Hindi'
+                                                                            <TextField className='form-control' id='MiddleName_Hindi' name='MiddleName_Hindi' value={formik.values.MiddleName_Hindi}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('MiddleName_Hindi', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Last Name - हिंदी:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='LastName_Hindi' name='LastName_Hindi'
+                                                                            <TextField className='form-control' id='LastName_Hindi' name='LastName_Hindi' value={formik.values.LastName_Hindi}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('LastName_Hindi', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Father's Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='FatherName' name='FatherName'
+                                                                            <TextField className='form-control' id='FatherName' name='FatherName' value={formik.values.FatherName}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('FatherName', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Mother's Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='MotherName' name='MotherName'
+                                                                            <TextField className='form-control' id='MotherName' name='MotherName' value={formik.values.MotherName}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('MotherName', val);
                                                                                 }}></TextField>
@@ -481,7 +483,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             <Label>Gender:&nbsp;</Label>
                                                                             <Dropdown placeHolder='Select Gender' className='form-control' id='Gender' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GenderChoices : []
-                                                                            } required={true}
+                                                                            } required={true} selectedKey={formik.values.Gender}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('Gender', true);
                                                                                     // console.log(formik);
@@ -499,7 +501,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             <Label>Blood Group:&nbsp;</Label>
                                                                             <Dropdown placeHolder='Select Blood Group' className='form-control' id='BloodGroup'
                                                                                 options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BloodGroupChoices : []}
-                                                                                onChanged={(val) => { formik.setFieldValue('BloodGroup', val.key); }}
+                                                                                onChanged={(val) => { formik.setFieldValue('BloodGroup', val.key); }} selectedKey={formik.values.BloodGroup}
                                                                             />
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
@@ -520,7 +522,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Religion:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Religion' name='Religion' required={true}
+                                                                            <TextField className='form-control' id='Religion' name='Religion' required={true} value={formik.values.Religion}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('Religion', true);
                                                                                     // console.log(formik);
@@ -538,7 +540,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Category [Caste]:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Caste' name='Caste' required={true}
+                                                                            <TextField className='form-control' id='Caste' name='Caste' required={true} value={formik.values.Caste}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('Caste', true);
                                                                                     // console.log(formik);
@@ -558,7 +560,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             <Label>Marital Status:&nbsp;</Label>
                                                                             <Dropdown placeHolder='Select Marital Status' className='form-control' id='MartialStatus' options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.MaritalStatusChoices : []
-                                                                            } required={true}
+                                                                            } required={true} selectedKey={formik.values.MartialStatus}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('MartialStatus', true);
                                                                                     // console.log(formik);
@@ -574,7 +576,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Phone:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Phone_x0020_No' name='Phone_x0020_No'
+                                                                            <TextField className='form-control' id='Phone_x0020_No' name='Phone_x0020_No' value={formik.values.Phone_x0020_No}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Phone_x0020_No', val);
                                                                                 }}></TextField>
@@ -582,6 +584,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Mobile:&nbsp;</Label>
                                                                             <TextField className='form-control' id='MobileNo_x002e_' name='MobileNo_x002e_' required={true}
+                                                                                value={formik.values.MobileNo_x002e_}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('MobileNo_x002e_', true);
                                                                                     // console.log(formik);
@@ -600,6 +603,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Corporate Email:&nbsp;</Label>
                                                                             <TextField className='form-control' id='CompanyEmail' name='CompanyEmail' required={true}
+                                                                                value={formik.values.CompanyEmail}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('CompanyEmail', true);
                                                                                     // console.log(formik);
@@ -618,6 +622,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Alternate Email:&nbsp;</Label>
                                                                             <TextField className='form-control' id='AlternateEmail' name='AlternateEmail' required={true}
+                                                                                value={formik.values.AlternateEmail}
                                                                                 onFocus={(e) => {
                                                                                     formik.setFieldTouched('AlternateEmail', true);
                                                                                     // console.log(formik);
@@ -658,7 +663,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='row'>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Employee Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='EmployeeName' name='EmployeeName'
+                                                                            <TextField className='form-control' id='EmployeeName' name='EmployeeName' value={formik.values.EmployeeName}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('EmployeeName', val);
                                                                                 }}></TextField>
@@ -666,13 +671,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Permanent Address:&nbsp;</Label>
                                                                             <TextField className='form-control' multiline={true} id='PermanentAddress' name='PermanentAddress'
+                                                                                value={formik.values.PermanentAddress}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('PermanentAddress', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Name1' name='Name1'
+                                                                            <TextField className='form-control' id='Name1' name='Name1' value={formik.values.Name1}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Name1', val);
                                                                                 }}></TextField>
@@ -680,20 +686,21 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Family Member):&nbsp;</Label>
                                                                             <TextField className='form-control' id='EmergencyContactNumber1' name='EmergencyContactNumber1'
+                                                                                value={formik.values.EmergencyContactNumber1}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('EmergencyContactNumber1', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Relationship1' name='Relationship1'
+                                                                            <TextField className='form-control' id='Relationship1' name='Relationship1' value={formik.values.Relationship1}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Relationship1', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Name2' name='Name2'
+                                                                            <TextField className='form-control' id='Name2' name='Name2' value={formik.values.Name2}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Name2', val);
                                                                                 }}></TextField>
@@ -701,13 +708,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Not Family Member):&nbsp;</Label>
                                                                             <TextField className='form-control' id='EmergencyContactNumber2' name='EmergencyContactNumber2'
+                                                                                value={formik.values.EmergencyContactNumber2}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('EmergencyContactNumber2', val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Relationship2' name='Relationship2'
+                                                                            <TextField className='form-control' id='Relationship2' name='Relationship2' value={formik.values.Relationship2}
                                                                                 onChanged={(val) => {
                                                                                     formik.setFieldValue('Relationship2', val);
                                                                                 }}></TextField>
@@ -733,6 +741,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Nationality:&nbsp;</Label>
                                                                         <TextField className='form-control' id='Nationality' name='Nationality' required={true}
+                                                                            value={formik.values.Nationality}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('Nationality', true);
                                                                                 // console.log(formik);
@@ -750,7 +759,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Aadhaar Card No.:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='AadharCardNo' name='AadharCardNo' required={true}
+                                                                        <TextField className='form-control' id='AadharCardNo' name='AadharCardNo' required={true} value={formik.values.AadharCardNo}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('AadharCardNo', true);
                                                                                 // console.log(formik);
@@ -762,7 +771,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('AadharCardNo', val);
                                                                                 formik.setFieldValue(`EmployeeDocuments.${0}.Title`, val);
-                                                                                // console.log(InitializedUserProfile.EmployeeDocuments)
+                                                                                // console.log(this.InitializedUserProfile.EmployeeDocuments)
                                                                             }}
                                                                             errorMessage={formik.errors.AadharCardNo && formik.touched.AadharCardNo ? formik.errors.AadharCardNo as string : ''}
                                                                         ></TextField>
@@ -777,11 +786,12 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     formik.setFieldValue(`EmployeeDocuments.${0}.Document`, null);
                                                                                 }
                                                                             }} />
+                                                                        {formik.values.EmployeeDocuments[0].Document ? formik.values.EmployeeDocuments[0].Document[0].name : ''}
                                                                         <ErrorMessage name={`EmployeeDocuments.${0}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Voter ID No.:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='VoterID_x0020_No' name='VoterID_x0020_No'
+                                                                        <TextField className='form-control' id='VoterID_x0020_No' name='VoterID_x0020_No' value={formik.values.VoterID_x0020_No}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('VoterID_x0020_No', val);
                                                                                 formik.setFieldValue(`EmployeeDocuments.${1}.Title`, val);
@@ -796,11 +806,13 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     formik.setFieldValue(`EmployeeDocuments.${1}.Document`, null);
                                                                                 }
                                                                             }} />
+                                                                        {formik.values.EmployeeDocuments[1].Document ? formik.values.EmployeeDocuments[1].Document[0].name : ''}
                                                                         <ErrorMessage name={`EmployeeDocuments.${1}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PAN No.:&nbsp;</Label>
                                                                         <TextField className='form-control' id='PAN_x0020_No' name='PAN_x0020_No' required={true}
+                                                                            value={formik.values.PAN_x0020_No}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('PAN_x0020_No', true);
                                                                                 // console.log(formik);
@@ -826,16 +838,19 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     formik.setFieldValue(`EmployeeDocuments.${2}.Document`, null);
                                                                                 }
                                                                             }} />
+                                                                        {formik.values.EmployeeDocuments[2].Document ? formik.values.EmployeeDocuments[2].Document[0].name : ''}
                                                                         <ErrorMessage name={`EmployeeDocuments.${2}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Driver License No.:&nbsp;</Label>
                                                                         <TextField className='form-control' id='DrivingLicenseNumber' name='DrivingLicenseNumber'
+                                                                            value={formik.values.DrivingLicenseNumber}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('DrivingLicenseNumber', val);
                                                                                 formik.setFieldValue(`EmployeeDocuments.${3}.Title`, val);
                                                                             }}></TextField>
                                                                         <input type='file' id={`EmployeeDocuments.${3}.Document`} name={`EmployeeDocuments.${3}.Document`} onBlur={formik.handleBlur}
+                                                                            value={formik.values[`EmployeeDocuments.${3}.Document`]}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
                                                                                 if (files.length > 0) {
@@ -845,6 +860,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     formik.setFieldValue(`EmployeeDocuments.${3}.Document`, null);
                                                                                 }
                                                                             }} />
+                                                                        {formik.values.EmployeeDocuments[3].Document ? formik.values.EmployeeDocuments[3].Document[0].name : ''}
                                                                         <ErrorMessage name={`EmployeeDocuments.${3}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
@@ -864,12 +880,13 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Passport No.:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='PassportNo_x002e_' name='PassportNo_x002e_'
+                                                                        <TextField className='form-control' id='PassportNo_x002e_' name='PassportNo_x002e_' value={formik.values.PassportNo_x002e_}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('PassportNo_x002e_', val);
                                                                                 formik.setFieldValue(`EmployeeDocuments.${4}.Title`, val);
                                                                             }}></TextField>
                                                                         <input type='file' id={`EmployeeDocuments.${4}.Document`} name={`EmployeeDocuments.${4}.Document`} onBlur={formik.handleBlur}
+                                                                            value={formik.values[`EmployeeDocuments.${4}.Document`]}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
                                                                                 if (files.length > 0) {
@@ -879,6 +896,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     formik.setFieldValue(`EmployeeDocuments.${4}.Document`, null);
                                                                                 }
                                                                             }} />
+                                                                        {formik.values.EmployeeDocuments[4].Document ? formik.values.EmployeeDocuments[4].Document[0].name : ''}
                                                                         <ErrorMessage name={`EmployeeDocuments.${4}.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
@@ -933,60 +951,61 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Dropdown placeHolder='Select Bank' className='form-control' id='BankNameId'
                                                                             options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.BankChoices : []}
                                                                             onChanged={(val) => { formik.setFieldValue('BankNameId', val.key); }}
+                                                                            selectedKey={formik.values.BankNameId}
                                                                         />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Branch:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='BranchName' name='BranchName'
+                                                                        <TextField className='form-control' id='BranchName' name='BranchName' value={formik.values.BranchName}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('BranchName', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Account No.:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='AccountNo' name='AccountNo'
+                                                                        <TextField className='form-control' id='AccountNo' name='AccountNo' value={formik.values.AccountNo}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('AccountNo', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>IFSC Code:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='IFSCCode' name='IFSCCode'
+                                                                        <TextField className='form-control' id='IFSCCode' name='IFSCCode' value={formik.values.IFSCCode}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('IFSCCode', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PF Number:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='PFNumber' name='PFNumber'
+                                                                        <TextField className='form-control' id='PFNumber' name='PFNumber' value={formik.values.PFNumber}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('PFNumber', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>ESIC Number:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='ESICNumber' name='ESICNumber'
+                                                                        <TextField className='form-control' id='ESICNumber' name='ESICNumber' value={formik.values.ESICNumber}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('ESICNumber', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>ESIC Remark:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='ESIC_x0020_Remarks' name='ESIC_x0020_Remarks'
+                                                                        <TextField className='form-control' id='ESIC_x0020_Remarks' name='ESIC_x0020_Remarks' value={formik.values.ESIC_x0020_Remarks}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('ESIC_x0020_Remarks', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>PRAN Number:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='PranNo' name='PranNo'
+                                                                        <TextField className='form-control' id='PranNo' name='PranNo' value={formik.values.PranNo}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('PranNo', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>NPS:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='NPS' name='NPS'
+                                                                        <TextField className='form-control' id='NPS' name='NPS' value={formik.values.NPS}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('NPS', val);
                                                                             }}></TextField>
@@ -1012,7 +1031,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Office Location:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Office' className='form-control' id='OfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.OfficeLocationId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('OfficeLocationId', true);
                                                                                 // console.log(formik);
@@ -1030,7 +1049,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Role:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Role' className='form-control' id='Role' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.RoleChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.Role}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('Role', true);
                                                                                 // console.log(formik);
@@ -1057,7 +1076,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Scale:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Scale' className='form-control' id='ScaleId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ScaleChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.ScaleId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('ScaleId', true);
                                                                                 // console.log(formik);
@@ -1076,7 +1095,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Grade:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Grade' className='form-control' id='GardeId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GradeChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.GardeId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('GardeId', true);
                                                                                 // console.log(formik);
@@ -1095,7 +1114,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Designation:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Designation' className='form-control' id='DesignationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.DesignationChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.DesignationId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('DesignationId', true);
                                                                                 // console.log(formik);
@@ -1114,7 +1133,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Pay Scale:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Pay Scale' className='form-control' id='PayscaleId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.PayScaleChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.PayscaleId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('PayscaleId', true);
                                                                                 // console.log(formik);
@@ -1132,7 +1151,8 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Weekly Off:&nbsp;</Label>
                                                                         {/* <Checkbox /> */}
-                                                                        <Dropdown placeHolder='Select Weekly Off' className='form-control' id='WeeklyOff' selectedKeys={this.state.userProfile.WeeklyOff as []}
+                                                                        <Dropdown placeHolder='Select Weekly Off' className='form-control' id='WeeklyOff'
+                                                                            selectedKeys={(typeof this.state.userProfile.WeeklyOff === 'string') ? this.state.userProfile.WeeklyOff.match(/.+?;#/g) : this.state.userProfile.WeeklyOff as []}
                                                                             multiSelect={true} options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.WeeklyOffChoices : []
                                                                             }
@@ -1141,30 +1161,31 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                             onChanged={(option) => {
                                                                                 if (option.key === '' && option.selected === true) {
-                                                                                    InitializedUserProfile.WeeklyOff = this.state.userProfileLoadData.WeeklyOffChoices.map(opt => opt.key) as [];
-                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } });
+                                                                                    this.InitializedUserProfile.WeeklyOff = this.state.userProfileLoadData.WeeklyOffChoices.map(opt => opt.key) as [];
+                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 } else if (option.key === '' && option.selected === false) {
-                                                                                    InitializedUserProfile.WeeklyOff = [];
-                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } });
+                                                                                    this.InitializedUserProfile.WeeklyOff = [];
+                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
                                                                                 else {
-                                                                                    InitializedUserProfile.WeeklyOff = formik.values.WeeklyOff.length > 0 ? formik.values.WeeklyOff : [];
-                                                                                    InitializedUserProfile.WeeklyOff = Helper.setMultiDropDownOptions(InitializedUserProfile.WeeklyOff as [], option);
-                                                                                    this.setState({ userProfile: { WeeklyOff: InitializedUserProfile.WeeklyOff } }, () => {
+                                                                                    this.InitializedUserProfile.WeeklyOff = formik.values.WeeklyOff.length > 0 ? formik.values.WeeklyOff : [];
+                                                                                    this.InitializedUserProfile.WeeklyOff = Helper.setMultiDropDownOptions(this.InitializedUserProfile.WeeklyOff as [], option);
+                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } }, () => {
                                                                                         console.log(this.state.userProfile.WeeklyOff);
                                                                                     });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
-                                                                                formik.setFieldValue('WeeklyOff', InitializedUserProfile.WeeklyOff.filter(val => val !== ''));
+                                                                                formik.setFieldValue('WeeklyOff', this.InitializedUserProfile.WeeklyOff.filter(val => val !== ''));
                                                                                 console.log(this.state.userProfile.WeeklyOff);
                                                                             }}
                                                                         />
+                                                                        {/* {(typeof this.state.userProfile.WeeklyOff === 'string') ? this.state.userProfile.WeeklyOff.match(/.+?;#/g) : this.state.userProfile.WeeklyOff as []} */}
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Is Active?:&nbsp;</Label>
-                                                                        <Checkbox id='Active' name='Active' onChange={(val, checked) => {
+                                                                        <Checkbox id='Active' name='Active' value={formik.values.Active} onChange={(val, checked) => {
                                                                             formik.setFieldValue('Active', checked);
                                                                         }} />
                                                                     </div>
@@ -1188,7 +1209,8 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId' selectedKeys={this.state.userProfile.SubGroupId as []}
+                                                                        <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId'
+                                                                            selectedKeys={this.state.userProfile.SubGroupId ? this.state.userProfile.SubGroupId['results'] : this.state.userProfile.SubGroupId as []}
                                                                             multiSelect={true} required={true} options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
                                                                             }
@@ -1197,6 +1219,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('SubGroupId', true);
+                                                                                // formik.setFieldValue('SubGroupId', this.state.userProfile.SubGroupId['results'] ? this.state.userProfile.SubGroupId['results'] : this.state.userProfile.SubGroupId as [])
                                                                                 // console.log(formik);
                                                                             }}
                                                                             onBlur={(e) => {
@@ -1205,21 +1228,21 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                             onChanged={(option) => {
                                                                                 if (option.key === '' && option.selected === true) {
-                                                                                    InitializedUserProfile.SubGroupId = this.state.userProfileLoadData.SubGroupChoices.map(opt => opt.key) as [];
-                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    this.InitializedUserProfile.SubGroupId = this.state.userProfileLoadData.SubGroupChoices.map(opt => opt.key) as [];
+                                                                                    this.setState({ userProfile: { SubGroupId: this.InitializedUserProfile.SubGroupId } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 } else if (option.key === '' && option.selected === false) {
-                                                                                    InitializedUserProfile.SubGroupId = [];
-                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    this.InitializedUserProfile.SubGroupId = [];
+                                                                                    this.setState({ userProfile: { SubGroupId: this.InitializedUserProfile.SubGroupId } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
                                                                                 else {
-                                                                                    InitializedUserProfile.SubGroupId = formik.values.SubGroupId.length > 0 ? formik.values.SubGroupId : [];
-                                                                                    InitializedUserProfile.SubGroupId = Helper.setMultiDropDownOptions(InitializedUserProfile.SubGroupId as [], option);
-                                                                                    this.setState({ userProfile: { SubGroupId: InitializedUserProfile.SubGroupId } });
+                                                                                    this.InitializedUserProfile.SubGroupId = formik.values.SubGroupId.length > 0 ? formik.values.SubGroupId : [];
+                                                                                    this.InitializedUserProfile.SubGroupId = Helper.setMultiDropDownOptions(this.InitializedUserProfile.SubGroupId as [], option);
+                                                                                    this.setState({ userProfile: { SubGroupId: this.InitializedUserProfile.SubGroupId } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
-                                                                                formik.setFieldValue('SubGroupId', InitializedUserProfile.SubGroupId.filter(val => val !== ''));
+                                                                                formik.setFieldValue('SubGroupId', this.InitializedUserProfile.SubGroupId.filter(val => val !== ''));
                                                                                 console.log(this.state.userProfile.SubGroupId);
                                                                             }}
                                                                             errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
@@ -1227,7 +1250,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Unit:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Unit' className='form-control' id='UnitId'
+                                                                        <Dropdown placeHolder='Select Unit' className='form-control' id='UnitId' selectedKey={formik.values.UnitId}
                                                                             options={(this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.UnitChoices : []}
                                                                             onChanged={(val) => { formik.setFieldValue('UnitId', val.key); }}
                                                                         />
@@ -1236,7 +1259,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Current Office Location:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Current Office' className='form-control' id='CurrentOfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.CurrentOfficeLocationId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('CurrentOfficeLocationId', true);
                                                                                 // console.log(formik);
@@ -1269,7 +1292,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Deputation Office Location:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Deputation Office' className='form-control' id='DeputationOfficeLocationId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.OfficeChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.DeputationOfficeLocationId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('DeputationOfficeLocationId', true);
                                                                                 // console.log(formik);
@@ -1288,7 +1311,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Shift Allocated:&nbsp;</Label>
                                                                         <Dropdown placeHolder='Select Shift Allocated' className='form-control' id='ShiftAllocatedId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.ShiftAllocatedChoices : []
-                                                                        } required={true}
+                                                                        } required={true} selectedKey={formik.values.ShiftAllocatedId}
                                                                             onFocus={(e) => {
                                                                                 formik.setFieldTouched('ShiftAllocatedId', true);
                                                                                 // console.log(formik);
@@ -1324,20 +1347,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         formik.setFieldTouched('ReportingManagerId', true);
                                                                     }}>
                                                                         <Label>PAPR Manager:&nbsp;</Label>
-                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control'
-                                                                            context={this.props.currentSPContext}
-                                                                            personSelectionLimit={1}
-                                                                            tooltipDirectional={1}
+                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control' context={this.props.currentSPContext} personSelectionLimit={1}
+                                                                            tooltipDirectional={1} defaultSelectedUsers={[this.InitializedUserProfile.ReportingManager.Email]}
                                                                             selectedItems={(items) => {
                                                                                 this._getPeoplePickerItems(items, formik, 'ReportingManagerId', 'ReportingManager');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
-                                                                            principalTypes={[PrincipalType.User]}
-                                                                            ensureUser={true}
-                                                                            resolveDelay={1000}
-                                                                            placeholder='Enter names or email addresses...'
-                                                                            errorMessage='Please enter valid user'
-                                                                            isRequired={true}
+                                                                            principalTypes={[PrincipalType.User]} ensureUser={true} resolveDelay={1000} placeholder='Enter names or email addresses...'
+                                                                            errorMessage='Please enter valid user' isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
                                                                     </div>
@@ -1347,20 +1364,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         formik.setFieldTouched('AlternateReportingManagerId', true);
                                                                     }}>
                                                                         <Label>PAPR Reviewer:&nbsp;</Label>
-                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control'
-                                                                            context={this.props.currentSPContext}
-                                                                            personSelectionLimit={1}
-                                                                            tooltipDirectional={1}
+                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control' context={this.props.currentSPContext} personSelectionLimit={1}
+                                                                            tooltipDirectional={1} defaultSelectedUsers={[this.InitializedUserProfile.AlternateReportingManager.Email]}
                                                                             selectedItems={(items) => {
                                                                                 this._getPeoplePickerItems(items, formik, 'AlternateReportingManagerId', 'AlternateReportingManager');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
-                                                                            principalTypes={[PrincipalType.User]}
-                                                                            ensureUser={true}
-                                                                            resolveDelay={1000}
-                                                                            placeholder='Enter names or email addresses...'
-                                                                            errorMessage='Please enter valid user'
-                                                                            isRequired={true}
+                                                                            principalTypes={[PrincipalType.User]} ensureUser={true} resolveDelay={1000} placeholder='Enter names or email addresses...'
+                                                                            errorMessage='Please enter valid user' isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
                                                                     </div>
@@ -1370,19 +1381,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         formik.setFieldTouched('LeaveLevel1Id', true);
                                                                     }}>
                                                                         <Label>Leave Level 1:&nbsp;</Label>
-                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control'
-                                                                            context={this.props.currentSPContext}
-                                                                            personSelectionLimit={1}
-                                                                            tooltipDirectional={1}
+                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control' context={this.props.currentSPContext} personSelectionLimit={1}
+                                                                            tooltipDirectional={1} defaultSelectedUsers={[this.InitializedUserProfile.LeaveLevel1.Email]}
                                                                             selectedItems={(items) => {
                                                                                 this._getPeoplePickerItems(items, formik, 'LeaveLevel1Id', 'LeaveLevel1');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
-                                                                            principalTypes={[PrincipalType.User]}
-                                                                            ensureUser={true}
-                                                                            resolveDelay={1000}
-                                                                            placeholder='Enter names or email addresses...'
-                                                                            errorMessage='Please enter valid user'
+                                                                            principalTypes={[PrincipalType.User]} ensureUser={true} resolveDelay={1000}
+                                                                            placeholder='Enter names or email addresses...' errorMessage='Please enter valid user'
                                                                             isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
@@ -1394,19 +1400,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         formik.setFieldTouched('LeaveLevel2Id', true);
                                                                     }}>
                                                                         <Label>Leave Level 2:&nbsp;</Label>
-                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control'
-                                                                            context={this.props.currentSPContext}
-                                                                            personSelectionLimit={1}
-                                                                            tooltipDirectional={1}
+                                                                        <PeoplePicker peoplePickerCntrlclassName='form-control' context={this.props.currentSPContext}
+                                                                            personSelectionLimit={1} tooltipDirectional={1} defaultSelectedUsers={[this.InitializedUserProfile.LeaveLevel2.Email]}
                                                                             selectedItems={(items) => {
                                                                                 this._getPeoplePickerItems(items, formik, 'LeaveLevel2Id', 'LeaveLevel2');
                                                                                 // formik.setFieldValue('Level1Approver', items);
                                                                             }}
-                                                                            principalTypes={[PrincipalType.User]}
-                                                                            ensureUser={true}
-                                                                            resolveDelay={1000}
-                                                                            placeholder='Enter names or email addresses...'
-                                                                            errorMessage='Please enter valid user'
+                                                                            principalTypes={[PrincipalType.User]} ensureUser={true} resolveDelay={1000}
+                                                                            placeholder='Enter names or email addresses...' errorMessage='Please enter valid user'
                                                                             isRequired={true}
                                                                             webAbsoluteUrl={this.props.currentSPContext.pageContext.web.absoluteUrl}
                                                                         />
@@ -1414,28 +1415,28 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Paternity Leave Count:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='PaternityLeaveCount' name='PaternityLeaveCount'
+                                                                        <TextField className='form-control' id='PaternityLeaveCount' name='PaternityLeaveCount' value={formik.values.PaternityLeaveCount}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('PaternityLeaveCount', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Maternity Leave Count:&nbsp;</Label>
-                                                                        <TextField className='form-control' id='MaternityLeave_Count' name='MaternityLeave_Count'
+                                                                        <TextField className='form-control' id='MaternityLeave_Count' name='MaternityLeave_Count' value={formik.values.MaternityLeave_Count}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('MaternityLeave_Count', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Total days of EOL:&nbsp;</Label>
-                                                                        <TextField className='form-control' placeholder='Extraordinary Leave' id='TotalEOL' name='TotalEOL'
+                                                                        <TextField className='form-control' placeholder='Extraordinary Leave' id='TotalEOL' name='TotalEOL' value={formik.values.TotalEOL}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('TotalEOL', val);
                                                                             }}></TextField>
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Total days of ML:&nbsp;</Label>
-                                                                        <TextField className='form-control' placeholder='Medical Leave' id='TotalMaternityLeave' name='TotalMaternityLeave'
+                                                                        <TextField className='form-control' placeholder='Medical Leave' id='TotalMaternityLeave' name='TotalMaternityLeave' value={formik.values.TotalMaternityLeave}
                                                                             onChanged={(val) => {
                                                                                 formik.setFieldValue('TotalMaternityLeave', val);
                                                                             }}></TextField>
@@ -1465,9 +1466,9 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     <div className='row'>
                                                                                         <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                             <Label>Training Certification:&nbsp;</Label>
-                                                                                            <Dropdown placeHolder='Select Type' className='form-control' id={`TrainingNCertificate.${n}.ExperienceInId`} options={
+                                                                                            <Dropdown placeHolder='Select Type' className='form-control' id={`TrainingNCertificate-${n}-ExperienceInId`} options={
                                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingCertificationChoices : []
-                                                                                            } required={true}
+                                                                                            } required={true} selectedKey={tnc.ExperienceInId}
                                                                                                 onFocus={(e) => {
                                                                                                     formik.setFieldTouched(`TrainingNCertificate.${n}.ExperienceInId`, true);
                                                                                                     // console.log(formik);
@@ -1485,7 +1486,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                         </div>
                                                                                         <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                             <Label>Training Certifying Institute:&nbsp;</Label>
-                                                                                            <TextField className='form-control' id={`TrainingNCertificate.${n}.Institute`} name={`TrainingNCertificate.${n}.Institute`} required={true}
+                                                                                            <TextField className='form-control' id={`TrainingNCertificate-${n}-Institute`} name={`TrainingNCertificate.${n}.Institute`} required={true}
                                                                                                 onFocus={(e) => {
                                                                                                     formik.setFieldTouched(`TrainingNCertificate.${n}.Institute`, true);
                                                                                                     // console.log(formik);
@@ -1496,7 +1497,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                                 }}
                                                                                                 onChanged={(val) => {
                                                                                                     formik.setFieldValue(`TrainingNCertificate.${n}.Institute`, val);
-                                                                                                }}
+                                                                                                }} value={formik.values.TrainingNCertificate[n].Institute}
                                                                                                 errorMessage={formik.errors[`TrainingNCertificate.${n}.Institute`] && formik.touched[`TrainingNCertificate.${n}.Institute`] ? formik.errors[`TrainingNCertificate.${n}.Institute`] as string : ''}
                                                                                             ></TextField>
                                                                                             <ErrorMessage name={`TrainingNCertificate.${n}.Institute`} component='div' className='error-message' />
@@ -1514,16 +1515,16 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                                 }}
                                                                                                 onChanged={(val) => {
                                                                                                     formik.setFieldValue(`TrainingNCertificate.${n}.TrainingCost`, val);
-                                                                                                }}
+                                                                                                }} value={formik.values.TrainingNCertificate[n].TrainingCost}
                                                                                                 errorMessage={formik.errors[`TrainingNCertificate.${n}.TrainingCost`] && formik.touched[`TrainingNCertificate.${n}.TrainingCost`] ? formik.errors[`TrainingNCertificate.${n}.TrainingCost`] as string : ''}
                                                                                             ></TextField>
                                                                                             <ErrorMessage name={`TrainingNCertificate.${n}.TrainingCost`} component='div' className='error-message' />
                                                                                         </div>
                                                                                         <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                             <Label>Location:&nbsp;</Label>
-                                                                                            <Dropdown placeHolder='Select Location' className='form-control' id='Location' options={
+                                                                                            <Dropdown placeHolder='Select Location' className='form-control' id={`TrainingNCertificate-${n}-Location`} options={
                                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.TrainingNCertificationLocationChoices : []
-                                                                                            } required={true}
+                                                                                            } required={true} selectedKey={tnc.Location}
                                                                                                 onFocus={(e) => {
                                                                                                     formik.setFieldTouched(`TrainingNCertificate.${n}.Location`, true);
                                                                                                     // console.log(formik);
@@ -1541,7 +1542,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                         </div>
                                                                                         <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                             <Label>Description:&nbsp;</Label>
-                                                                                            <TextField className='form-control' id={`TrainingNCertificate.${n}.Description`} name={`TrainingNCertificate.${n}.Description`} required={true}
+                                                                                            <TextField className='form-control' id={`TrainingNCertificate-${n}-Description`} name={`TrainingNCertificate.${n}.Description`} required={true}
                                                                                                 onFocus={(e) => {
                                                                                                     formik.setFieldTouched(`TrainingNCertificate.${n}.Description`, true);
                                                                                                     // console.log(formik);
@@ -1552,7 +1553,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                                 }}
                                                                                                 onChanged={(val) => {
                                                                                                     formik.setFieldValue(`TrainingNCertificate.${n}.Description`, val);
-                                                                                                }}
+                                                                                                }} value={formik.values.TrainingNCertificate[n].Description}
                                                                                                 errorMessage={formik.errors.Description && formik.touched.Description ? formik.errors.Description as string : ''}
                                                                                             ></TextField>
                                                                                             <ErrorMessage name={`TrainingNCertificate.${n}.Description`} component='div' className='error-message' />
@@ -1587,11 +1588,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                             ></DatePicker>
                                                                                             <ErrorMessage name={`TrainingNCertificate.${n}.EndDate`} component='div' className='error-message' />
                                                                                         </div>
+                                                                                        {/* <pre>{JSON.stringify(formik.errors.TrainingNCertificate, null, 2)}</pre> */}
                                                                                         <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                             <span className='line-item-icon'>
-                                                                                                {(formik.values.TrainingNCertificate.length == n + 1) && (
+                                                                                                {(formik.values.TrainingNCertificate.length == n + 1 && !formik.errors.TrainingNCertificate) && (
                                                                                                     <Link type='button' onClick={() => {
-                                                                                                        faProps.push(InitializedUserProfile.TrainingNCertificate);
+                                                                                                        faProps.push(TrainingNCertification);
+                                                                                                        formik.validateForm(formik.values);
+                                                                                                        this.props.onFormValidationChange(false, formik.values, 'General')
                                                                                                     }}>
                                                                                                         <Icon iconName='CircleAdditionSolid' />
                                                                                                     </Link>
@@ -1601,6 +1605,8 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                                 {(formik.values.TrainingNCertificate.length > 1) && (
                                                                                                     <Link type='button' onClick={() => {
                                                                                                         faProps.remove(n);
+                                                                                                        formik.validateForm(formik.values);
+                                                                                                        this.props.onFormValidationChange(formik.isValid, formik.values, 'General')
                                                                                                     }}>
                                                                                                         <Icon iconName='SkypeCircleMinus' />
                                                                                                     </Link>
@@ -1627,7 +1633,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                 <div className='row'>
                                                     <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
                                                         <PrimaryButton type='button' data-automation-id='btn-next-profile' iconProps={{ iconName: 'Next' }}
-                                                            text='Next' onClick={() => { this.props.onFormValidationChange(formik.isValid, formik.values) }} />
+                                                            text='Next' onClick={() => { this.props.onFormValidationChange(formik.isValid, formik.values, 'General') }} />
                                                     </div>
                                                 </div>
                                             </div>

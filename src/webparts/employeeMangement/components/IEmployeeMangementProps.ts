@@ -7,5 +7,5 @@ export interface IEmployeeMangementProps {
   loggedInUserDetails: IUserProfile;
   sharedData?: any;
   onResponseFromLeftNav?: (data: string) => void;
-  onFormValidationChange?: (isValid: boolean, data: any) => void;
+  onFormValidationChange?: (isValid: boolean, data: any, strFormName: string) => void;
 }

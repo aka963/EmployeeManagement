@@ -16,8 +16,11 @@ export interface IAddressMaster {
     PinCode?: string;
     ResedentialPhone?: string;
     Country?: ICountry;
+    CountryId?: string
     State?: IState;
+    StateId?: string;
     City?: ICity;
+    CityId?: string;
     EmployeeName?: string;
     Flag?: string;
     MobileNo?: string;
@@ -42,8 +45,11 @@ export const AddressMaster: IAddressMaster = {
     PinCode: '',
     ResedentialPhone: '',
     Country: Country,
+    CountryId: '',
     City: City,
+    CityId: '',
     State: State,
+    StateId: '',
     EmployeeName: '',
     Flag: '',
     MobileNo: '',
