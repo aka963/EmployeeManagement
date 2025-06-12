@@ -25,6 +25,12 @@ export default class UserProfileOps {
         + ',EmployeeType,CurrentOfficeLocation,ShiftAllocated,BankName,Unit,DeputationOfficeLocation,ShiftAllocated'
         + ',SubGroup,Scale,DesignationPromotedTo';
 
+        public static strEmployeeMasterListTitleDASH: string = 'EmployeeMaster';
+
+        public static strEmployeeMasterColumnsDASH: string = 'Title,EmployeeName,Scale/Title,Grade/Title,CompanyEmail,CurrentOfficeLocation/Title,MobileNo_x002e_,Designation/Title,UserName/Name,EmployeeTitle,ReportingManager/Title'
+        public static strEmployeeMasterExpandColumnsDASH: string = 'UserName,CurrentOfficeLocation,ReportingManager,Designation,Grade,Scale'
+
+
     public static strAddressMasterListTitle: string = 'AddressMaster';
     public static strAddressMasterColumns: string = 'Id,Title,AddressType,Address,PinCode,ResedentialPhone,Country/Title,Country/Id'
         + ',City/Title,City/Id,State/Title,State/Id,AccomodationType,LeaseStartDate,LeaseEndDate,MonthlyRent,Entitlement'
@@ -167,6 +173,30 @@ export default class UserProfileOps {
                 Helper.hideShowLoader('none');
                 return userProfile;
             });
+
+        }).catch((e) => {
+            console.log(e);
+            const userProfile: IUserProfile = {};
+            return userProfile;
+        });
+    }
+   
+ public static async getAllUserProfile(props: IEmployeeMangementProps): Promise<IUserProfile> {
+        let spListQueryAll: ISPQuery[] = [];
+        spListQueryAll.push({
+            ListTitle: this.strEmployeeMasterListTitleDASH, SelectQuery: this.strEmployeeMasterColumnsDASH
+            , ExpandQuery: this.strEmployeeMasterExpandColumnsDASH
+            , FilterQuery: 'Active eq 1'
+            , SortQuery: { orderBy: 'Id', ascending: true }
+        });
+        Helper.hideShowLoader('block');
+
+     
+        return await spcrud.getBatchData(spListQueryAll, props).then(async (resp) => {
+            const userProfile: IUserProfile = resp;
+          
+            return userProfile;
+
 
         }).catch((e) => {
             console.log(e);
