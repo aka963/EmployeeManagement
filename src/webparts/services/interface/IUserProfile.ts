@@ -21,6 +21,9 @@ import { IDropdownOption } from "office-ui-fabric-react/lib/Dropdown";
 import { number, string } from "yup";
 import { ITrainingCertificationMaster } from "./ITrainingCertificationMaster";
 import { EmployeeDocuments, IEmployeeDocuments } from "./IEmployeeDocuments";
+import { ICountry } from "./ICountry";
+import { IState } from "./IState";
+import { ICity } from "./ICity";
 
 export interface IUserProfile {
     UserName?: IUserProps;
@@ -171,6 +174,9 @@ export interface IUserProfileLoadData {
     SubGroupMaster?: ISubGroupMaster[];
     UnitMaster?: IUnitMaster[];
     TrainingCertificationMaster?: ITrainingCertificationMaster[];
+    CountryMaster?: ICountry[];
+    StateMaster?: IState[];
+    CityMaster?: ICity[];
 
     BankChoices?: IDropdownOption[];
     OfficeChoices?: IDropdownOption[];
@@ -183,7 +189,9 @@ export interface IUserProfileLoadData {
     SubGroupChoices?: IDropdownOption[];
     UnitChoices?: IDropdownOption[];
     TrainingCertificationChoices?: IDropdownOption[];
-    TrainingNCertificationLocationChoices?: IDropdownOption[];
+    CountryChoices?: IDropdownOption[];
+    StateChoices?: IDropdownOption[];
+    CityChoices?: IDropdownOption[];
 
     BloodGroupChoices?: IDropdownOption[];
     ContractTypeChoices?: IDropdownOption[];
@@ -195,6 +203,8 @@ export interface IUserProfileLoadData {
     RoleChoices?: IDropdownOption[];
     SingleParentChoices?: IDropdownOption[];
     WeeklyOffChoices?: IDropdownOption[];
+    TrainingNCertificationLocationChoices?: IDropdownOption[];
+    AddressMasterAccomdationTypeChoices?: IDropdownOption[];
 }
 
 export const InitializedUserProfile: IUserProfile = {

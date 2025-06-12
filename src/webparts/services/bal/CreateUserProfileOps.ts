@@ -65,10 +65,6 @@ export default class CreateUserProfileOps {
     public static strUnitMasterExpandColumns: string = 'SubGroup';
     public static strUnitMasterSortColumns = { orderBy: 'Title', ascending: true };
 
-    public static strEmployeeMasterListTitle: string = 'EmployeeMaster';
-    public static strEmployeeMasterChoiceColumns: string[] = ['BloodGroup', 'ContractType', 'EmployeeTitle', 'Gender'
-        , 'MaritalStatus', 'PhysicallyHandicaped', 'ProbationPeriod', 'Role', 'SingleParent', 'WeeklyOff'];
-
     public static strEmployeeMasterColumns: string = 'Title';
     public static strEmployeeMasterExpandColumns: string = '';
     //public static strEmployeeMasterFilterColumns = '(Title eq \'' + userProfile.Title + '\')';
@@ -79,9 +75,30 @@ export default class CreateUserProfileOps {
     public static strTrainingNCertificationMasterExpandColumns: string = '';
     public static strTrainingNCertificationMasterSortColumns = { orderBy: 'Title', ascending: true };
 
+    public static strCountryMasterListTitle: string = 'CountryMaster';
+    public static strCountryMasterColumns: string = 'Id,Title';
+    public static strCountryMasterExpandColumns: string = '';
+    public static strCountryMasterSortColumns = { orderBy: 'Title', ascending: true };
+
+    public static strStateMasterListTitle: string = 'StateMaster';
+    public static strStateMasterColumns: string = 'Id,Title,CountryId,Country/Title';
+    public static strStateMasterExpandColumns: string = 'Country';
+    public static strStateMasterSortColumns = { orderBy: 'Title', ascending: true };
+
+    public static strCityMasterListTitle: string = 'CityMaster';
+    public static strCityMasterColumns: string = 'Id,Title,StateId,State/Title';
+    public static strCityMasterExpandColumns: string = 'State';
+    public static strCityMasterSortColumns = { orderBy: 'Title', ascending: true };
+
+    public static strEmployeeMasterListTitle: string = 'EmployeeMaster';
+    public static strEmployeeMasterChoiceColumns: string[] = ['BloodGroup', 'ContractType', 'EmployeeTitle', 'Gender'
+        , 'MaritalStatus', 'PhysicallyHandicaped', 'ProbationPeriod', 'Role', 'SingleParent', 'WeeklyOff'];
+
     public static strEmpTrainingNCertificationListTitle: string = 'EmpTrainingAndCertification';
     public static strEmpTrainingNCertificationChoiceColumns: string[] = ['Location'];
 
+    public static strAddressMasterListTitle: string = 'AddressMaster';
+    public static strAddressMasterChoiceColumns: string[] = ['AccomodationType'];
     // #endregion
 
     public static async getUserInfo(username: string, props: IEmployeeMangementProps): Promise<ISiteUserProps> {
@@ -158,11 +175,30 @@ export default class CreateUserProfileOps {
         });
 
         multiSPQuery.push({
+            Type: DataType.ListItems, ListTitle: this.strCountryMasterListTitle, SelectQuery: this.strCountryMasterColumns,
+            ExpandQuery: this.strCountryMasterExpandColumns, FilterQuery: '', SortQuery: this.strCountryMasterSortColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.ListItems, ListTitle: this.strStateMasterListTitle, SelectQuery: this.strStateMasterColumns,
+            ExpandQuery: this.strStateMasterExpandColumns, FilterQuery: '', SortQuery: this.strStateMasterSortColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.ListItems, ListTitle: this.strCityMasterListTitle, SelectQuery: this.strCityMasterColumns,
+            ExpandQuery: this.strCityMasterExpandColumns, FilterQuery: '', SortQuery: this.strCityMasterSortColumns
+        });
+
+        multiSPQuery.push({
             Type: DataType.Choices, ListTitle: this.strEmployeeMasterListTitle, ChoiceColumns: this.strEmployeeMasterChoiceColumns
         });
 
         multiSPQuery.push({
             Type: DataType.Choices, ListTitle: this.strEmpTrainingNCertificationListTitle, ChoiceColumns: this.strEmpTrainingNCertificationChoiceColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.Choices, ListTitle: this.strAddressMasterListTitle, ChoiceColumns: this.strAddressMasterChoiceColumns
         });
         // #endregion
 
@@ -172,7 +208,8 @@ export default class CreateUserProfileOps {
             let multiResults: IUserProfileLoadData = {
                 BankMaster: resp[0], OfficeMaster: resp[1], DesignationMaster: resp[2], EmployeeTypeMaster: resp[3]
                 , GradeMaster: resp[4], ScaleMaster: resp[5], PayScaleMaster: resp[6], ShiftAllocatedMaster: resp[7]
-                , SubGroupMaster: resp[8], UnitMaster: resp[9], TrainingCertificationMaster: resp[10]
+                , SubGroupMaster: resp[8], UnitMaster: resp[9], TrainingCertificationMaster: resp[10], CountryMaster: resp[11]
+                , StateMaster: resp[12], CityMaster: resp[13]
 
                 , BankChoices: Helper.getDropDownOptions(DataType.ListItems, resp[0], 'Select Bank', 'Title')
                 , OfficeChoices: Helper.getDropDownOptions(DataType.ListItems, resp[1], 'Select Office', 'Title')
@@ -185,18 +222,22 @@ export default class CreateUserProfileOps {
                 , SubGroupChoices: Helper.getDropDownOptions(DataType.ListItems, resp[8], 'Select All', 'SubGroup')
                 , UnitChoices: Helper.getDropDownOptions(DataType.ListItems, resp[9], 'Select Unit', 'Title')
                 , TrainingCertificationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[10], 'Select Type', 'Title')
+                , CountryChoices: Helper.getDropDownOptions(DataType.ListItems, resp[11], 'Select Country', 'Title')
+                , StateChoices: Helper.getDropDownOptions(DataType.ListItems, resp[12], 'Select State', 'Title')
+                , CityChoices: Helper.getDropDownOptions(DataType.ListItems, resp[13], 'Select City', 'Title')
 
-                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[11].Choices, 'Select Blood Group')
-                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[12].Choices, 'Select Contract Type')
-                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[13].Choices, 'Select Title')
-                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[14].Choices, 'Select Gender')
-                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Marital Status')
-                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Whether')
-                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Probation Period')
-                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Role')
-                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Whether')
-                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select Weekly Off', '', true)
-                , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Location')
+                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[14].Choices, 'Select Blood Group')
+                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Contract Type')
+                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Title')
+                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Gender')
+                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Marital Status')
+                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Whether')
+                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select Probation Period')
+                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Role')
+                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[22].Choices, 'Select Whether')
+                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[23].Choices, 'Select Weekly Off', '', true)
+                , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[24].Choices, 'Select Location')
+                , AddressMasterAccomdationTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[25].Choices, 'Select Type')
             };
             return multiResults;
         }).catch((e) => {

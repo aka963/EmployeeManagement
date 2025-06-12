@@ -11,6 +11,7 @@ import UpdateUserProfile from './profile/update/UpdateUserProfile';
 import MainDashboard from './approval/MainDashboard';
 import Helper from '../../services/utilities/Helper';
 import AllProfile from './hr/AllProfile';
+import ViewUserProfile from './profile/view/ViewUserProfile';
 
 export default class EmployeeMangement extends React.Component<IEmployeeMangementProps, {}> {
   constructor(props: IEmployeeMangementProps) {
@@ -85,6 +86,7 @@ export default class EmployeeMangement extends React.Component<IEmployeeMangemen
                     <Route path='/updateUserProfile' render={() => <UpdateUserProfile {...this.props} />}></Route>
                     <Route path='/mainDash/:currTab' render={() => <MainDashboard {...this.props} />}></Route>
                     <Route path='/allProfile' render={() => <AllProfile {...this.props} />}></Route>
+                    <Route path='/viewProfile' render={() => <ViewUserProfile {...this.props} />}></Route>
                   </Switch>
                 </HashRouter>
               </div>

@@ -26,8 +26,8 @@ export interface IAddressMaster {
     MobileNo?: string;
     TelephoneNo?: string;
     AccomodationType?: string;
-    LeaseStartDate?: Date;
-    LeaseEndDate?: Date;
+    LeaseStartDate?: Date | string;
+    LeaseEndDate?: Date | string;
     MonthlyRent?: number;
     Entitlement?: string;
     SecurityDepositAmount?: number;

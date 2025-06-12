@@ -5,6 +5,7 @@ export interface IState {
     Id?: number;
     Title?: string;
     Country?: ICountry;
+    CountryId?: string | number;
     Author?: IUserProps;
     Editor?: IUserProps;
     Created?: Date;
@@ -15,6 +16,7 @@ export const State = {
     Id: 0,
     Title: '',
     Country: Country,
+    CountryId: '',
     Author: UserProps,
     Editor: UserProps,
     Created: null,
