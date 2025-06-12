@@ -7,7 +7,7 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { DetailsList, IColumn, DetailsListLayoutMode, Selection, SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { ContextualMenu, ContextualMenuItemType, IContextualMenuProps, IContextualMenuItemProps } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { mergeStyleSets, getTheme } from '@fluentui/react/lib/Styling';
+import { mergeStyleSets, getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { Pagination } from '@pnp/spfx-controls-react/lib/Pagination';
 import upOps from '../../../services/bal/UserProfileOps';
 
@@ -51,13 +51,13 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
           </span>
         )
       },
-      this._createColumn('CurrentOfficeLocation.Title', 'Office', 100, 150, item => item.CurrentOfficeLocation?.Title || ''),
-      this._createColumn('Designation.Title', 'Designation', 100, 150, item => item.Designation?.Title || ''),
+      this._createColumn('CurrentOfficeLocation.Title', 'Office', 100, 150, (item) => item.CurrentOfficeLocation ? item.CurrentOfficeLocation.Title : ''),
+      this._createColumn('Designation.Title', 'Designation', 100, 150, (item) => item.Designation ? item.Designation.Title : ''),
       this._createColumn('MobileNo_x002e_', 'Mobile', 100, 120),
       this._createColumn('CompanyEmail', 'Email', 150, 200),
-      this._createColumn('Scale.Title', 'Scale', 70, 100, item => item.Scale?.Title || ''),
-      this._createColumn('Grade.Title', 'Grade', 70, 100, item => item.Grade?.Title || ''),
-      this._createColumn('ReportingManager.Title', 'Reporting To', 120, 160, item => item.ReportingManager?.Title || ''),
+      this._createColumn('Scale.Title', 'Scale', 70, 100, (item) => item.Scale ? item.Scale.Title : ''),
+      this._createColumn('Grade.Title', 'Grade', 70, 100, (item) => item.Grade ? item.Grade.Title : ''),
+      this._createColumn('ReportingManager.Title', 'Reporting To', 120, 160, (item) => item.ReportingManager ? item.ReportingManager.Title : ''),
     ];
 
     this._selection = new Selection({
@@ -81,6 +81,8 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
       showContextMenu: false,
       contextMenuProfile: null
     };
+
+    this.handleUserViewClick = this.handleUserViewClick.bind(this);
   }
 
   public async componentDidMount(): Promise<void> {
@@ -96,6 +98,14 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
       console.error('Failed to load profiles', error);
     }
   }
+
+  private handleUserViewClick() {
+    // Without binding, "this" might be undefined here,
+    // so referencing this.state would cause an error.
+    this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView = this.state.contextMenuProfile.UserName.Name
+    window.location.href = '#/viewProfile'
+  }
+
 
   private _createColumn(key: string, name: string, minWidth: number, maxWidth: number, onRender?: (item: any) => any): IColumn {
     return {
@@ -213,6 +223,9 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
   private _getMenuProps(): IContextualMenuProps {
     return {
       items: [
+        {
+          key: 'viewProfile', iconProps: { iconName: 'ContactCard' }, text: 'View Profile', onClick: this.handleUserViewClick 
+        },
         {
           key: 'openInWord',
           text: 'Open in Word',

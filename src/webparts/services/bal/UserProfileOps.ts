@@ -194,11 +194,12 @@ export default class UserProfileOps {
      
         return await spcrud.getBatchData(spListQueryAll, props).then(async (resp) => {
             const userProfile: IUserProfile = resp;
-          
+            Helper.hideShowLoader('none');
             return userProfile;
 
 
         }).catch((e) => {
+            Helper.hideShowLoader('none');
             console.log(e);
             const userProfile: IUserProfile = {};
             return userProfile;

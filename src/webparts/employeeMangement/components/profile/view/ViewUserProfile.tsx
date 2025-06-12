@@ -42,7 +42,7 @@ export default class ViewUserProfile extends React.Component<IEmployeeMangementP
     }
 
     public async componentDidMount(): Promise<void> {
-        const systemUserKey: string = this.props.sharedData.systemUserKey;
+        const systemUserKey: string = this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView;
         await upOps.getUserProfileByUserName(systemUserKey, this.props).then((resp) => {
             this.setState({
                 userProfile: resp, personaDetails: {
