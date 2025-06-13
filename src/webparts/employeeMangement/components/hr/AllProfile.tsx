@@ -39,7 +39,7 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
             <Link onClick={(ev: React.MouseEvent<HTMLElement>) => this._showContextMenu(ev, item)}>{item.EmployeeName}</Link>
             <Icon iconName='MoreVertical' style={{ verticalAlign: 'bottom', paddingLeft: '3px', cursor: 'pointer' }} onClick={(e) => this._showContextMenu(e, item)} />
           </div>
-        ),isSorted: false, isSortedDescending: false
+        ), isSorted: false, isSortedDescending: false
       },
       this._createColumn('CurrentOfficeLocation.Title', 'Office', 100, 150, (item) => item.CurrentOfficeLocation ? item.CurrentOfficeLocation.Title : ''),
       this._createColumn('Designation.Title', 'Designation', 100, 150, (item) => item.Designation ? item.Designation.Title : ''),
@@ -166,8 +166,12 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
   }
 
   private onSearch(strSearch: string) {
-    let searchedData = Helper.filterDeeply(this.state.userProfile, strSearch);
-    this.setState({ pagedProfiles: searchedData, filteredProfiles: searchedData });
+    if (strSearch.trim() !== '') {
+      let searchedData = Helper.filterDeeply(this.state.userProfile, strSearch);
+      this.setState({ pagedProfiles: searchedData, filteredProfiles: searchedData });
+    } else {
+      this.setState({ pagedProfiles: this.state.userProfile, filteredProfiles: this.state.userProfile });
+    }
   }
 
   private _onSearch = (_: any, newValue?: string): void => {
@@ -264,30 +268,45 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
 
   public render(): React.ReactElement<IEmployeeMangementProps> {
     return (
-      <div className={styles.employeeMangement}>
-        {/* <TextField placeholder="Search..." onChange={this._onSearch} value={this.state.searchText} /> */}
-        <SearchBox placeholder='Search' onBlur={(ev) => this.onSearch(ev.target['value'])}
-        //onFocus={() => console.log('onFocus called')}          
-        // onChange={this._onSearch}
-        />
-        <DetailsList
-          items={this.state.pagedProfiles}
-          columns={this.state.columns}
-          selectionMode={SelectionMode.single}
-          selection={this._selection}
-          layoutMode={DetailsListLayoutMode.justified}
-          onItemInvoked={this._onItemInvoked}
-          checkboxVisibility={CheckboxVisibility.hidden}
-        />
-        <Pagination
-          currentPage={this.state.currentPage}
-          totalPages={Math.ceil(this.state.filteredProfiles.length / this.state.pageSize)}
-          onChange={(page) => this._updatePagedProfiles(page)}
-        />
+      <div className='widget-card full-content-height'>
+        <div className='widget-card-head'>
+          <span className='widget-card-head-icon'>
+            <Icon iconName='ContactLink' />
+          </span>
+          <h2 className='widget-card-head-title'>ALL PROFILE</h2>
+          <span className='widget-card-head-btn'>
+            <PrimaryButton data-automation-id='btn-create-profile' iconProps={{ iconName: 'AddFriend' }}
+              text='Create Profile' onClick={() => { window.location.href = '#/createUserProfile/General'; }} />
+          </span>
+        </div>
+        <div className='widget-card-body'>
+          <div className={styles.employeeMangement}>
+            <TextField placeholder="Search..." iconProps={{ iconName: 'ProfileSearch'}} onBlur={(ev) => this.onSearch(ev.target['value'])}
+              onFocus={(ev) => this.onSearch(ev.target['value'])} />
+            {/* <SearchBox placeholder='Search' onBlur={(ev) => this.onSearch(ev.target['value'])}
+              onFocus={(ev) => this.onSearch(ev.target['value'])} onClear={(ev) => this.onSearch(ev.target['value'])}
+            // onChange={this._onSearch}
+            /> */}
+            <DetailsList
+              items={this.state.pagedProfiles}
+              columns={this.state.columns}
+              selectionMode={SelectionMode.single}
+              selection={this._selection}
+              layoutMode={DetailsListLayoutMode.justified}
+              onItemInvoked={this._onItemInvoked}
+              checkboxVisibility={CheckboxVisibility.hidden}
+            />
+            <Pagination
+              currentPage={this.state.currentPage}
+              totalPages={Math.ceil(this.state.filteredProfiles.length / this.state.pageSize)}
+              onChange={(page) => this._updatePagedProfiles(page)}
+            />
 
-        {this.state.showContextMenu && (
-          <ContextualMenu {...this._getMenuProps()} />
-        )}
+            {this.state.showContextMenu && (
+              <ContextualMenu {...this._getMenuProps()} />
+            )}
+          </div>
+        </div>
       </div>
     );
   }
