@@ -46,7 +46,7 @@ export default class UserProfile extends React.Component<IEmployeeMangementProps
         await upOps.getUserProfileByUserName(systemUserKey, this.props).then((resp) => {
             this.setState({
                 userProfile: resp, personaDetails: {
-                    imageUrl: resp.ProfileImage.Url
+                    imageUrl: resp.ProfileImage ? resp.ProfileImage.Url : '/_layouts/15/userphoto.aspx?size=L&username=' + systemUserKey
                     , imageInitials: (resp.FirstName.substring(0, 1) + ' ' + resp.LastName.substring(0, 1))
                     , text: resp.EmployeeTitle + '. ' + resp.EmployeeName, secondaryText: resp.Designation.Title, tertiaryText: resp.SubGroup[0].GroupName + ' - ' + resp.Role
                     , optionalText: 'Ext: ' + resp.Extension

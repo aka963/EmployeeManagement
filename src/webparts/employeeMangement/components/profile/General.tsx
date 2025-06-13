@@ -26,7 +26,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
         super(props);
         this.userProfile = props.sharedData;
         this.personaDetails = {
-            imageUrl: this.userProfile.ProfileImage.Url
+            imageUrl: this.userProfile.ProfileImage ? this.userProfile.ProfileImage.Url : '/_layouts/15/userphoto.aspx?size=L&username=' + this.userProfile.UserName.LoginName
             , imageInitials: (this.userProfile.FirstName.substring(0, 1) + ' ' + this.userProfile.LastName.substring(0, 1))
             , text: this.userProfile.EmployeeTitle + '. ' + this.userProfile.EmployeeName, secondaryText: this.userProfile.Designation.Title
             , tertiaryText: this.userProfile.SubGroup[0].GroupName + ' - ' + this.userProfile.Role

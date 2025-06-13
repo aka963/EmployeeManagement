@@ -74,14 +74,14 @@ export default class Helper {
             } else if (dataType === DataType.Choices && !ismultiChoice) {
                 ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i], ariaLabel: choices[i] });
             } else if (dataType === DataType.Choices && ismultiChoice) {
-                ddOptions.push({ index: (i + 1), key: choices[i] +';#', text: choices[i], ariaLabel: choices[i] });
+                ddOptions.push({ index: (i + 1), key: choices[i] + ';#', text: choices[i], ariaLabel: choices[i] });
             }
         }
 
         return ddOptions;
     }
 
-    public static setMultiDropDownOptions(optionColl: [], option: IDropdownOption | IComboBoxOption) : [] {
+    public static setMultiDropDownOptions(optionColl: [], option: IDropdownOption | IComboBoxOption): [] {
         let optionIndex = optionColl.indexOf(option.key as never, 0);
         if (optionIndex > -1) {
             optionColl.splice(optionIndex, 1);
@@ -89,5 +89,54 @@ export default class Helper {
             optionColl.push(option.key as never);
         }
         return optionColl;
+    }
+
+    public static filterData(jsonData: any, filterValue: string, includeColumns: Array<string>) {
+        const lowercasedValue = filterValue.toLowerCase().trim();
+        if (lowercasedValue === "") return jsonData;
+        else {
+            const filteredData = jsonData.filter(item => {
+                return Object.keys(item).some(key =>
+                    includeColumns.includes(key) ? item[key] != undefined && item[key] != null ? item[key].toString().toLowerCase().includes(lowercasedValue) : false : false
+                );
+            });
+            return filteredData;
+        }
+    }
+
+    /**
+ * Recursively checks if an object (or any of its nested props)
+ * contains the search term.
+ */
+    public static hasMatch(obj, term) {
+        const needle = term.toLowerCase();
+
+        for (const key in obj) {
+            if (!obj.hasOwnProperty(key)) continue;
+            // skip metadata if you like:
+            if (/^odata|@odata/.test(key)) continue;
+
+            const val = obj[key];
+            if (val == null) continue;
+
+            if (typeof val === 'object') {
+                if (this.hasMatch(val, term)) return true;
+            }
+            else {
+                if (String(val).toLowerCase().includes(needle)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a new array containing only those items
+     * that have ≥1 match in any nested field.
+     */
+    public static filterDeeply(list, term) {
+        if (!term) return list.slice();  // return a shallow copy if no filter
+        return list.filter(item => this.hasMatch(item, term));
     }
 }

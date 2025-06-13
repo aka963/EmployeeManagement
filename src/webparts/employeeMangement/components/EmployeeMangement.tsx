@@ -86,7 +86,7 @@ export default class EmployeeMangement extends React.Component<IEmployeeMangemen
                     <Route path='/updateUserProfile' render={() => <UpdateUserProfile {...this.props} />}></Route>
                     <Route path='/mainDash/:currTab' render={() => <MainDashboard {...this.props} />}></Route>
                     <Route path='/allProfile' render={() => <AllProfile {...this.props} />}></Route>
-                    <Route path='/viewProfile' render={() => <ViewUserProfile {...this.props} />}></Route>
+                    <Route path='/viewProfile/:currNav' render={() => <ViewUserProfile {...this.props} />}></Route>
                   </Switch>
                 </HashRouter>
               </div>

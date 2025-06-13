@@ -11,7 +11,11 @@ export default class TopNavigation extends React.Component<IEmployeeMangementPro
         super(props);
         const currHashPath: string = window.location.hash;
         if (currHashPath.split('/')[1]) {
-            this.state = { selectedLink: currHashPath.split('/')[1] };
+            if (currHashPath.split('/')[1] === 'viewProfile') {
+                this.state = { selectedLink: 'myprofile' };
+            } else {
+                this.state = { selectedLink: currHashPath.split('/')[1] };
+            }
         }
         else {
             this.state = { selectedLink: 'myprofile' };

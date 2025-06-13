@@ -46,7 +46,7 @@ export default class ViewUserProfile extends React.Component<IEmployeeMangementP
         await upOps.getUserProfileByUserName(systemUserKey, this.props).then((resp) => {
             this.setState({
                 userProfile: resp, personaDetails: {
-                    imageUrl: resp.ProfileImage.Url
+                    imageUrl: resp.ProfileImage ? resp.ProfileImage.Url : '/_layouts/15/userphoto.aspx?size=L&username=' + systemUserKey
                     , imageInitials: (resp.FirstName.substring(0, 1) + ' ' + resp.LastName.substring(0, 1))
                     , text: resp.EmployeeTitle + '. ' + resp.EmployeeName, secondaryText: resp.Designation.Title, tertiaryText: resp.SubGroup[0].GroupName + ' - ' + resp.Role
                     , optionalText: 'Ext: ' + resp.Extension
@@ -73,7 +73,7 @@ export default class ViewUserProfile extends React.Component<IEmployeeMangementP
                     <span className='widget-card-head-icon'>
                         <Icon iconName='ContactInfo' />
                     </span>
-                    <h2 className='widget-card-head-title'>MY PROFILE</h2>
+                    <h2 className='widget-card-head-title'>VIEW PROFILE</h2>
                     <span className='widget-card-head-btn'>
                         <PrimaryButton data-automation-id='btn-update-profile' iconProps={{ iconName: 'EditContact' }}
                             text='Update Profile' onClick={() => { window.location.href = '#/updateUserProfile'; }} />

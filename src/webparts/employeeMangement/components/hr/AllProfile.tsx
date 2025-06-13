@@ -2,32 +2,21 @@
 import * as React from 'react';
 import styles from '../EmployeeMangement.module.scss';
 import { IEmployeeMangementProps } from '../IEmployeeMangementProps';
-import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import { DefaultButton, IconButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
-import { DetailsList, IColumn, DetailsListLayoutMode, Selection, SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
+import { DetailsList, IColumn, DetailsListLayoutMode, Selection, SelectionMode, CheckboxVisibility } from 'office-ui-fabric-react/lib/DetailsList';
 import { ContextualMenu, ContextualMenuItemType, IContextualMenuProps, IContextualMenuItemProps } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { mergeStyleSets, getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { Pagination } from '@pnp/spfx-controls-react/lib/Pagination';
 import upOps from '../../../services/bal/UserProfileOps';
+import { IAllProfile } from '../../../services/interface/IAllProfile';
+import { IUserProfile } from '../../../services/interface/IUserProfile';
+import { Link } from 'office-ui-fabric-react/lib/Link';
+import { SearchBox } from 'office-ui-fabric-react';
+import Helper from '../../../services/utilities/Helper';
 
-interface IAllProfileState {
-  userProfile: any[];
-  filteredProfiles: any[];
-  pagedProfiles: any[];
-  columns: IColumn[];
-  searchText: string;
-  selectionDetails: string;
-  currentPage: number;
-  pageSize: number;
-  isSortedDescending: boolean;
-  sortedColumn: string;
-  menuTarget: HTMLElement | null;
-  showContextMenu: boolean;
-  contextMenuProfile: any | null;
-}
-
-export default class AllProfile extends React.Component<IEmployeeMangementProps, IAllProfileState> {
+export default class AllProfile extends React.Component<IEmployeeMangementProps, IAllProfile> {
   private _selection: Selection;
 
   constructor(props: IEmployeeMangementProps) {
@@ -42,14 +31,15 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
         minWidth: 100,
         maxWidth: 150,
         isResizable: true,
-        onRender: (item: any) => (
-          <span
-            style={{ cursor: 'pointer', color: '#0078d4' }}
-            onClick={(e) => this._showContextMenu(e, item)}
-          >
-            {item.EmployeeName}
-          </span>
-        )
+        onRender: (item: IUserProfile) => (
+          <div>
+            {/* <span style={{ cursor: 'pointer', color: '#0078d4' }} onClick={(e) => this._showContextMenu(e, item)}>
+              {item.EmployeeName}
+            </span> */}
+            <Link onClick={(ev: React.MouseEvent<HTMLElement>) => this._showContextMenu(ev, item)}>{item.EmployeeName}</Link>
+            <Icon iconName='MoreVertical' style={{ verticalAlign: 'bottom', paddingLeft: '3px', cursor: 'pointer' }} onClick={(e) => this._showContextMenu(e, item)} />
+          </div>
+        ),isSorted: false, isSortedDescending: false
       },
       this._createColumn('CurrentOfficeLocation.Title', 'Office', 100, 150, (item) => item.CurrentOfficeLocation ? item.CurrentOfficeLocation.Title : ''),
       this._createColumn('Designation.Title', 'Designation', 100, 150, (item) => item.Designation ? item.Designation.Title : ''),
@@ -103,9 +93,8 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
     // Without binding, "this" might be undefined here,
     // so referencing this.state would cause an error.
     this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView = this.state.contextMenuProfile.UserName.Name
-    window.location.href = '#/viewProfile'
+    window.location.href = '#/viewProfile/General'
   }
-
 
   private _createColumn(key: string, name: string, minWidth: number, maxWidth: number, onRender?: (item: any) => any): IColumn {
     return {
@@ -176,6 +165,11 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
     });
   }
 
+  private onSearch(strSearch: string) {
+    let searchedData = Helper.filterDeeply(this.state.userProfile, strSearch);
+    this.setState({ pagedProfiles: searchedData, filteredProfiles: searchedData });
+  }
+
   private _onSearch = (_: any, newValue?: string): void => {
     const searchText = (newValue || '').toLowerCase();
 
@@ -207,7 +201,7 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
     });
   };
 
-  private _showContextMenu = (event: React.MouseEvent<HTMLElement>, profile: any): void => {
+  private _showContextMenu = (event: React.MouseEvent<HTMLElement>, profile: IUserProfile): void => {
     event.preventDefault();
     this.setState({
       showContextMenu: true,
@@ -224,30 +218,44 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
     return {
       items: [
         {
-          key: 'viewProfile', iconProps: { iconName: 'ContactCard' }, text: 'View Profile', onClick: this.handleUserViewClick 
+          key: 'General', iconProps: { iconName: 'Articles' }, text: 'General', name: 'General', onClick: this.handleUserViewClick
         },
         {
-          key: 'openInWord',
-          text: 'Open in Word',
-          iconProps: {},
-          onRenderIcon: () => (
-            <span className={classNames.iconContainer}>
-              <Icon iconName="WordLogoFill16" className={classNames.logoFillIcon} />
-              <Icon iconName="WordLogo16" className={classNames.logoIcon} />
-            </span>
-          )
+          key: 'Address', iconProps: { iconName: 'Home' }, text: 'Address', name: 'Address', onClick: this.handleUserViewClick
         },
-        { key: 'newItem', iconProps: { iconName: 'Add' }, text: 'New' },
         {
-          key: 'upload',
-          iconProps: { iconName: 'Upload', style: { color: 'salmon' } },
-          text: 'Upload',
-          onClick: () => alert("Upload clicked")
+          key: 'Education', iconProps: { iconName: 'Education' }, text: 'Education', name: 'Education', onClick: this.handleUserViewClick
+        },
+        {
+          key: 'Dependants', iconProps: { iconName: 'Family' }, text: 'Dependants', name: 'Dependants', onClick: this.handleUserViewClick
+        },
+        {
+          key: 'Experience', iconProps: { iconName: 'Financial' }, text: 'Experience', name: 'Experience', onClick: this.handleUserViewClick
+        },
+        {
+          key: 'Promotions', iconProps: { iconName: 'Org' }, text: 'Promotions', name: 'Promotions', onClick: this.handleUserViewClick
+        },
+        {
+          key: 'Posting', iconProps: { iconName: 'TimelineProgress' }, text: 'Posting', name: 'Posting', onClick: this.handleUserViewClick
         },
         { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
-        { key: 'share', iconProps: { iconName: 'Share' }, text: 'Share' },
-        { key: 'print', iconProps: { iconName: 'Print' }, text: 'Print' },
-        { key: 'music', iconProps: { iconName: 'MusicInCollectionFill' }, text: 'Music' },
+        {
+          key: 'viewProfile', iconProps: { iconName: 'ContactCard' }, text: 'View Profile', name: 'View Profile', onClick: this.handleUserViewClick
+        },
+        {
+          key: 'updateProfile', iconProps: { iconName: 'EditContact' }, text: 'Edit Profile', name: 'Edit Profile', onClick: this.handleUserViewClick
+        }
+        // , {
+        //   key: 'openInWord',
+        //   text: 'Open in Word',
+        //   iconProps: {},
+        //   onRenderIcon: () => (
+        //     <span className={classNames.iconContainer}>
+        //       <Icon iconName="WordLogoFill16" className={classNames.logoFillIcon} />
+        //       <Icon iconName="WordLogo16" className={classNames.logoIcon} />
+        //     </span>
+        //   )
+        // }
       ],
       onDismiss: this._hideContextMenu,
       target: this.state.menuTarget,
@@ -257,7 +265,11 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
   public render(): React.ReactElement<IEmployeeMangementProps> {
     return (
       <div className={styles.employeeMangement}>
-        <TextField placeholder="Search..." onChange={this._onSearch} value={this.state.searchText} />
+        {/* <TextField placeholder="Search..." onChange={this._onSearch} value={this.state.searchText} /> */}
+        <SearchBox placeholder='Search' onBlur={(ev) => this.onSearch(ev.target['value'])}
+        //onFocus={() => console.log('onFocus called')}          
+        // onChange={this._onSearch}
+        />
         <DetailsList
           items={this.state.pagedProfiles}
           columns={this.state.columns}
@@ -265,6 +277,7 @@ export default class AllProfile extends React.Component<IEmployeeMangementProps,
           selection={this._selection}
           layoutMode={DetailsListLayoutMode.justified}
           onItemInvoked={this._onItemInvoked}
+          checkboxVisibility={CheckboxVisibility.hidden}
         />
         <Pagination
           currentPage={this.state.currentPage}

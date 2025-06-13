@@ -27,7 +27,7 @@ export default class UserProfileOps {
 
         public static strEmployeeMasterListTitleDASH: string = 'EmployeeMaster';
 
-        public static strEmployeeMasterColumnsDASH: string = 'Title,EmployeeName,Scale/Title,Grade/Title,CompanyEmail,CurrentOfficeLocation/Title,MobileNo_x002e_,Designation/Title,UserName/Name,EmployeeTitle,ReportingManager/Title'
+        public static strEmployeeMasterColumnsDASH: string = 'Title,EmployeeName,FirstName,Scale/Title,Grade/Title,CompanyEmail,CurrentOfficeLocation/Title,MobileNo_x002e_,Designation/Title,UserName/Name,EmployeeTitle,ReportingManager/Title'
         public static strEmployeeMasterExpandColumnsDASH: string = 'UserName,CurrentOfficeLocation,ReportingManager,Designation,Grade,Scale'
 
 
@@ -187,7 +187,7 @@ export default class UserProfileOps {
             ListTitle: this.strEmployeeMasterListTitleDASH, SelectQuery: this.strEmployeeMasterColumnsDASH
             , ExpandQuery: this.strEmployeeMasterExpandColumnsDASH
             , FilterQuery: 'Active eq 1'
-            , SortQuery: { orderBy: 'Id', ascending: true }
+            , SortQuery: { orderBy: 'FirstName', ascending: true }
         });
         Helper.hideShowLoader('block');
 
