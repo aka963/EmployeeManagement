@@ -24,6 +24,7 @@ import { EmployeeDocuments, IEmployeeDocuments } from "./IEmployeeDocuments";
 import { ICountry } from "./ICountry";
 import { IState } from "./IState";
 import { ICity } from "./ICity";
+import { IEducationMaster } from "./IEducationMaster";
 
 export interface IUserProfile {
     UserName?: IUserProps;
@@ -177,6 +178,7 @@ export interface IUserProfileLoadData {
     CountryMaster?: ICountry[];
     StateMaster?: IState[];
     CityMaster?: ICity[];
+    EducationMaster?: IEducationMaster[];
 
     BankChoices?: IDropdownOption[];
     OfficeChoices?: IDropdownOption[];
@@ -192,6 +194,7 @@ export interface IUserProfileLoadData {
     CountryChoices?: IDropdownOption[];
     StateChoices?: IDropdownOption[];
     CityChoices?: IDropdownOption[];
+    EducationChoices?: IDropdownOption[];
 
     BloodGroupChoices?: IDropdownOption[];
     ContractTypeChoices?: IDropdownOption[];
@@ -205,6 +208,10 @@ export interface IUserProfileLoadData {
     WeeklyOffChoices?: IDropdownOption[];
     TrainingNCertificationLocationChoices?: IDropdownOption[];
     AddressMasterAccomdationTypeChoices?: IDropdownOption[];
+    QualificationMasterCategoryChoices?: IDropdownOption[];
+    DependentMasterDependentTypeChoices?: IDropdownOption[];
+    DependentMasterRelationshipChoices?: IDropdownOption[];
+    EmployeeExperienceDetailJobTypeChoices?: IDropdownOption[];
 }
 
 export const InitializedUserProfile: IUserProfile = {

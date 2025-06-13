@@ -11,13 +11,14 @@ export interface IQualificationMaster {
     Comments?: string;
     Duration?: string;
     Education?: IEducationMaster;
+    EducationId?: string | number;
     EmployeeName?: string;
-    EndDate?: Date;
+    EndDate?: Date | string;
     Flag?: string;
     Score?: string;
     Speclization?: string;
-    StartDate?: Date;
-    TodayDate?: Date;
+    StartDate?: Date | string;
+    TodayDate?: Date | string;
     Institute?: string;
     Category?: string;
     YearOfPassing?: string;
@@ -33,6 +34,7 @@ export const QualificationMaster = {
     Comments: '',
     Duration: '',
     Education: EducationMaster,
+    EducationId: '',
     EmployeeName: '',
     EndDate: null,
     Flag: '',

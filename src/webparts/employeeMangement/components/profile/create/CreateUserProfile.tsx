@@ -14,6 +14,9 @@ import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 
 import cupOps from '../../../../services/bal/CreateUserProfileOps';
 import AddAddress from './AddAdress';
+import AddQualification from './AddQualification';
+import AddDependant from './AddDependant';
+import AddExperience from './AddExperience';
 
 export default class CreateUserProfile extends React.Component<IEmployeeMangementProps, ICreateUserProfile> {
     public userProfile: IUserProfile;
@@ -132,7 +135,16 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
                                 {(this.state.selectedLink === 'Address' && this.state.userProfileLoadData) ?
                                     <AddAddress {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
                                 }
-                                {(this.state.isGeneralFormValid) && (
+                                {(this.state.selectedLink === 'Education' && this.state.userProfileLoadData) ?
+                                    <AddQualification {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
+                                }
+                                {(this.state.selectedLink === 'Dependants' && this.state.userProfileLoadData) ?
+                                    <AddDependant {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
+                                }
+                                {(this.state.selectedLink === 'Experience' && this.state.userProfileLoadData) ?
+                                    <AddExperience {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
+                                }
+                                {(this.state.isGeneralFormValid && this.state.isAddressFormValid && this.state.isEducationFormValid) && (
                                     <div className='widget-card-body' style={{ height: 'auto' }}>
                                         <div className='row'>
                                             <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>

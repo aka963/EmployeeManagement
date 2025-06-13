@@ -61,7 +61,7 @@ export default class CreateUserProfileOps {
 
     public static strUnitMasterListTitle: string = 'UnitMaster';
     public static strUnitMasterColumns: string = 'Id,Title,SubGroup/Id,SubGroup/SubGroup,SubGroup/ShortName,SubGroup/GroupName';
-        // + ',SubGroup/Title,SubGroup/GroupEmail,SubGroup/DMD';
+    // + ',SubGroup/Title,SubGroup/GroupEmail,SubGroup/DMD';
     public static strUnitMasterExpandColumns: string = 'SubGroup';
     public static strUnitMasterSortColumns = { orderBy: 'Title', ascending: true };
 
@@ -90,6 +90,11 @@ export default class CreateUserProfileOps {
     public static strCityMasterExpandColumns: string = 'State';
     public static strCityMasterSortColumns = { orderBy: 'Title', ascending: true };
 
+    public static strEducationMasterListTitle: string = 'Education Master';
+    public static strEducationMasterColumns: string = 'Id,Title';
+    public static strEducationMasterExpandColumns: string = '';
+    public static strEducationMasterSortColumns = { orderBy: 'Title', ascending: true };
+
     public static strEmployeeMasterListTitle: string = 'EmployeeMaster';
     public static strEmployeeMasterChoiceColumns: string[] = ['BloodGroup', 'ContractType', 'EmployeeTitle', 'Gender'
         , 'MaritalStatus', 'PhysicallyHandicaped', 'ProbationPeriod', 'Role', 'SingleParent', 'WeeklyOff'];
@@ -99,6 +104,15 @@ export default class CreateUserProfileOps {
 
     public static strAddressMasterListTitle: string = 'AddressMaster';
     public static strAddressMasterChoiceColumns: string[] = ['AccomodationType'];
+
+    public static strQualificationMasterListTitle: string = 'Qualification Master';
+    public static strQualificationMasterChoiceColumns: string[] = ['Category'];
+
+    public static strDependentMasterListTitle: string = 'Dependent Master';
+    public static strDependentMasterChoiceColumns: string[] = ['DependentType', 'RelationShip'];
+
+    public static strEmployeeExperienceDetailListTitle: string = 'EmployeeExperienceDetail';
+    public static strEmployeeExperienceDetailChoiceColumns: string[] = ['JobType'];
     // #endregion
 
     public static async getUserInfo(username: string, props: IEmployeeMangementProps): Promise<ISiteUserProps> {
@@ -190,6 +204,11 @@ export default class CreateUserProfileOps {
         });
 
         multiSPQuery.push({
+            Type: DataType.ListItems, ListTitle: this.strEducationMasterListTitle, SelectQuery: this.strEducationMasterColumns,
+            ExpandQuery: this.strEducationMasterExpandColumns, FilterQuery: '', SortQuery: this.strEducationMasterSortColumns
+        });
+
+        multiSPQuery.push({
             Type: DataType.Choices, ListTitle: this.strEmployeeMasterListTitle, ChoiceColumns: this.strEmployeeMasterChoiceColumns
         });
 
@@ -200,6 +219,18 @@ export default class CreateUserProfileOps {
         multiSPQuery.push({
             Type: DataType.Choices, ListTitle: this.strAddressMasterListTitle, ChoiceColumns: this.strAddressMasterChoiceColumns
         });
+
+        multiSPQuery.push({
+            Type: DataType.Choices, ListTitle: this.strQualificationMasterListTitle, ChoiceColumns: this.strQualificationMasterChoiceColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.Choices, ListTitle: this.strDependentMasterListTitle, ChoiceColumns: this.strDependentMasterChoiceColumns
+        });
+
+        multiSPQuery.push({
+            Type: DataType.Choices, ListTitle: this.strEmployeeExperienceDetailListTitle, ChoiceColumns: this.strEmployeeExperienceDetailChoiceColumns
+        });
         // #endregion
 
         Helper.hideShowLoader('block');
@@ -209,7 +240,7 @@ export default class CreateUserProfileOps {
                 BankMaster: resp[0], OfficeMaster: resp[1], DesignationMaster: resp[2], EmployeeTypeMaster: resp[3]
                 , GradeMaster: resp[4], ScaleMaster: resp[5], PayScaleMaster: resp[6], ShiftAllocatedMaster: resp[7]
                 , SubGroupMaster: resp[8], UnitMaster: resp[9], TrainingCertificationMaster: resp[10], CountryMaster: resp[11]
-                , StateMaster: resp[12], CityMaster: resp[13]
+                , StateMaster: resp[12], CityMaster: resp[13], EducationMaster: resp[14]
 
                 , BankChoices: Helper.getDropDownOptions(DataType.ListItems, resp[0], 'Select Bank', 'Title')
                 , OfficeChoices: Helper.getDropDownOptions(DataType.ListItems, resp[1], 'Select Office', 'Title')
@@ -225,19 +256,24 @@ export default class CreateUserProfileOps {
                 , CountryChoices: Helper.getDropDownOptions(DataType.ListItems, resp[11], 'Select Country', 'Title')
                 , StateChoices: Helper.getDropDownOptions(DataType.ListItems, resp[12], 'Select State', 'Title')
                 , CityChoices: Helper.getDropDownOptions(DataType.ListItems, resp[13], 'Select City', 'Title')
+                , EducationChoices: Helper.getDropDownOptions(DataType.ListItems, resp[14], 'Select Qualification', 'Title')
 
-                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[14].Choices, 'Select Blood Group')
-                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Contract Type')
-                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Title')
-                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Gender')
-                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Marital Status')
-                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Whether')
-                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select Probation Period')
-                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Role')
-                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[22].Choices, 'Select Whether')
-                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[23].Choices, 'Select Weekly Off', '', true)
-                , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[24].Choices, 'Select Location')
-                , AddressMasterAccomdationTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[25].Choices, 'Select Type')
+                , BloodGroupChoices: Helper.getDropDownOptions(DataType.Choices, resp[15].Choices, 'Select Blood Group')
+                , ContractTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[16].Choices, 'Select Contract Type')
+                , EmployeeTitleChoices: Helper.getDropDownOptions(DataType.Choices, resp[17].Choices, 'Select Title')
+                , GenderChoices: Helper.getDropDownOptions(DataType.Choices, resp[18].Choices, 'Select Gender')
+                , MaritalStatusChoices: Helper.getDropDownOptions(DataType.Choices, resp[19].Choices, 'Select Marital Status')
+                , PhysicallyHandicapedChoices: Helper.getDropDownOptions(DataType.Choices, resp[20].Choices, 'Select Whether')
+                , ProbationPeriodChoices: Helper.getDropDownOptions(DataType.Choices, resp[21].Choices, 'Select Probation Period')
+                , RoleChoices: Helper.getDropDownOptions(DataType.Choices, resp[22].Choices, 'Select Role')
+                , SingleParentChoices: Helper.getDropDownOptions(DataType.Choices, resp[23].Choices, 'Select Whether')
+                , WeeklyOffChoices: Helper.getDropDownOptions(DataType.Choices, resp[24].Choices, 'Select Weekly Off', '', true)
+                , TrainingNCertificationLocationChoices: Helper.getDropDownOptions(DataType.Choices, resp[25].Choices, 'Select Location')
+                , AddressMasterAccomdationTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[26].Choices, 'Select Type')
+                , QualificationMasterCategoryChoices: Helper.getDropDownOptions(DataType.Choices, resp[27].Choices, 'Select Type')
+                , DependentMasterDependentTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[28].Choices, 'Select Type')
+                , DependentMasterRelationshipChoices: Helper.getDropDownOptions(DataType.Choices, resp[29].Choices, 'Select Relationship')
+                , EmployeeExperienceDetailJobTypeChoices: Helper.getDropDownOptions(DataType.Choices, resp[30].Choices, 'Select Type')
             };
             return multiResults;
         }).catch((e) => {
@@ -256,5 +292,5 @@ export default class CreateUserProfileOps {
             });
     }
 
- 
+
 }

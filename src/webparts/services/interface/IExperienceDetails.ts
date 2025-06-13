@@ -8,20 +8,23 @@ export interface IExperienceDetails {
     Title?: string;
     Author?: IUserProps;
     Editor?: IUserProps;
-    Created?: Date;
-    Modified?: Date;
+    Created?: Date | string;
+    Modified?: Date | string;
     City?: ICity;
+    CityId?: string | number;
     CompanyAddress?: string;
     CompanyContactNo?: string;
     Country?: ICountry;
+    CountryId?: string | number;
     EmployeeName?: string;
-    EndDate?: Date;
+    EndDate?: Date | string;
     JobDescription?: string;
     JobType?: string;
     PreviousCompanyName?: string;
-    StartDate?: Date;
+    StartDate?: Date | string;
     State?: IState;
-    TodayDate?: Date;
+    StateId?: string | number;
+    TodayDate?: Date | string;
     Designation?: string;
     PreviousCompanyExp?: number;
 }
@@ -34,9 +37,11 @@ export const ExperienceDetails = {
     Created: null,
     Modified: null,
     City: City,
+    CityId: '',
     CompanyAddress: '',
     CompanyContactNo: '',
     Country: Country,
+    CountryId: '',
     EmployeeName: '',
     EndDate: null,
     JobDescription: '',
@@ -44,6 +49,7 @@ export const ExperienceDetails = {
     PreviousCompanyName: '',
     StartDate: null,
     State: State,
+    StateId: '',
     TodayDate: null,
     Designation: '',
     PreviousCompanyExp: 0,
