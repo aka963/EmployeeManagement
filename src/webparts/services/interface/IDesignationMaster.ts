@@ -6,13 +6,14 @@ export interface IDesignationMaster {
     Title?: string;
     Author?: IUserProps;
     Editor?: IUserProps;
-    Created?: Date;
-    Modified?: Date;
+    Created?: Date | string;
+    Modified?: Date | string;
     Designation_Hindi?: string;
     Designation_VC?: string;
     DesignationOrder?: number;
     NomineeDirector?: string;
-    Scale: IScaleMaster;
+    Scale?: IScaleMaster;
+    ScaleId?: string | number;
 }
 
 export const DesignationMaster = {
@@ -26,5 +27,6 @@ export const DesignationMaster = {
     Designation_VC: '',
     DesignationOrder: 0,
     NomineeDirector: '',
-    Scale: ScaleMaster
+    Scale: ScaleMaster,
+    ScaleId: ''
 }

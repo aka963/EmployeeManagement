@@ -6,12 +6,13 @@ export interface IPostingHistory {
     Title?: string;
     Author?: IUserProps;
     Editor?: IUserProps;
-    Created?: Date;
-    Modified?: Date;
+    Created?: Date | string;
+    Modified?: Date | string;
     Employee?: IUserProps;
     SubGroup?: ISubGroupMaster;
-    FromDate?: Date;
-    ToDate?: Date;
+    SubGroupId?: string | number;
+    FromDate?: Date | string;
+    ToDate?: Date | string;
 }
 
 export const PostingHistory = {
@@ -23,6 +24,7 @@ export const PostingHistory = {
     Modified: null,
     Employee: UserProps,
     SubGroup: SubGroupMaster,
+    SubGroupId: '',
     FromDate: null,
     ToDate: null
 }

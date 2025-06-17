@@ -151,6 +151,7 @@ export interface IUserProfile {
     PromotionScale?: string;
     PromotionEffectiveDate?: Date | string;
     DesignationPromotedTo?: IDesignationMaster;
+    DesignationPromotedToId?: string | number;
     PromotionConfirmationDate?: Date | string;
     EmployeeDocuments?: IEmployeeDocuments[];
     EmergencyContact?: IEmergencyContact[];
@@ -338,6 +339,7 @@ export const InitializedUserProfile: IUserProfile = {
     PromotionScale: '',
     PromotionEffectiveDate: null,
     DesignationPromotedTo: DesignationMaster,
+    DesignationPromotedToId: '',
     PromotionConfirmationDate: null,
     EmployeeDocuments: [{ ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }, { ...EmployeeDocuments }],
     EmergencyContact: [EmergencyContact],

@@ -264,7 +264,7 @@ export default class AddQualification extends React.Component<IEmployeeMangement
                                                                                     }} value={formik.values.QualificationMaster[n].Comments}
                                                                                     errorMessage={formik.errors[`QualificationMaster.${n}.Comments`] && formik.touched[`QualificationMaster.${n}.Comments`] ? formik.errors[`QualificationMaster.${n}.Comments`] as string : ''}
                                                                                 ></TextField>
-                                                                                <ErrorMessage name={`QualificationMaster.${n}.Address`} component='div' className='error-message' />
+                                                                                <ErrorMessage name={`QualificationMaster.${n}.Comments`} component='div' className='error-message' />
                                                                             </div>
                                                                             <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                                 <span className='line-item-icon'>
@@ -272,7 +272,7 @@ export default class AddQualification extends React.Component<IEmployeeMangement
                                                                                         <Link type='button' onClick={() => {
                                                                                             faProps.push(QualificationMaster);
                                                                                             formik.validateForm(formik.values);
-                                                                                            this.props.onFormValidationChange(false, formik.values, 'Address')
+                                                                                            this.props.onFormValidationChange(false, formik.values, 'Education')
                                                                                         }}>
                                                                                             <Icon iconName='CircleAdditionSolid' />
                                                                                         </Link>
@@ -283,7 +283,7 @@ export default class AddQualification extends React.Component<IEmployeeMangement
                                                                                         <Link type='button' onClick={() => {
                                                                                             faProps.remove(n);
                                                                                             formik.validateForm(formik.values);
-                                                                                            this.props.onFormValidationChange(formik.isValid, formik.values, 'Address')
+                                                                                            this.props.onFormValidationChange(formik.isValid, formik.values, 'Education')
                                                                                         }}>
                                                                                             <Icon iconName='SkypeCircleMinus' />
                                                                                         </Link>

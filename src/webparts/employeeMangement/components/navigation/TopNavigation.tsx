@@ -13,6 +13,8 @@ export default class TopNavigation extends React.Component<IEmployeeMangementPro
         if (currHashPath.split('/')[1]) {
             if (currHashPath.split('/')[1] === 'viewProfile') {
                 this.state = { selectedLink: 'myprofile' };
+            } else if (currHashPath.split('/')[1] === 'createUserProfile') {
+                this.state = { selectedLink: 'allProfile' };
             } else {
                 this.state = { selectedLink: currHashPath.split('/')[1] };
             }
@@ -41,7 +43,7 @@ export default class TopNavigation extends React.Component<IEmployeeMangementPro
             <div className='emp-mas-top-nav'>
                 <div className='row'>
                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 emp-mas-top-nav-left'>
-                        &nbsp;&nbsp;&nbsp;<Icon iconName='ContactCardSettings'/> Employee Profile Management
+                        &nbsp;&nbsp;&nbsp;<Icon iconName='ContactCardSettings' /> Employee Profile Management
                     </div>
                     <div className='col-xs-9 col-sm-9 col-md-9 col-lg-9'>
                         <Nav onLinkClick={this.onNavLinkClick} className='emp-mas-top-nav-right' groups={[{

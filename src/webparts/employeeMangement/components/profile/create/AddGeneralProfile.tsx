@@ -779,6 +779,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <input type='file' id={`EmployeeDocuments.${0}.Document`} name={`EmployeeDocuments.${0}.Document`} onBlur={formik.handleBlur}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
+                                                                                formik.setFieldValue(`EmployeeDocuments.${0}.Category`, 'Aadhaar');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${0}.Document`, files);
                                                                                 }
@@ -799,6 +800,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <input type='file' id={`EmployeeDocuments.${1}.Document`} name={`EmployeeDocuments.${1}.Document`} onBlur={formik.handleBlur}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
+                                                                                formik.setFieldValue(`EmployeeDocuments.${1}.Category`, 'Voter ID');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${1}.Document`, files);
                                                                                 }
@@ -831,6 +833,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <input type='file' id={`EmployeeDocuments.${2}.Document`} name={`EmployeeDocuments.${2}.Document`} onBlur={formik.handleBlur}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
+                                                                                formik.setFieldValue(`EmployeeDocuments.${2}.Category`, 'PAN');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${2}.Document`, files);
                                                                                 }
@@ -853,6 +856,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             value={formik.values[`EmployeeDocuments.${3}.Document`]}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
+                                                                                formik.setFieldValue(`EmployeeDocuments.${3}.Category`, 'Driving License');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${3}.Document`, files);
                                                                                 }
@@ -889,6 +893,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             value={formik.values[`EmployeeDocuments.${4}.Document`]}
                                                                             onChange={({ currentTarget }) => {
                                                                                 const files = currentTarget.files;
+                                                                                formik.setFieldValue(`EmployeeDocuments.${4}.Category`, 'Passport');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${4}.Document`, files);
                                                                                 }
@@ -1209,8 +1214,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
+                                                                        <pre>{JSON.stringify({
+                                                                            SubGroupId: this.state.userProfile.SubGroupId
+                                                                            , Initialized: this.InitializedUserProfile.SubGroupId
+                                                                            , formik: formik.values.SubGroupId
+                                                                        }, null, 2)}</pre>
+
                                                                         <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId'
-                                                                            selectedKeys={this.state.userProfile.SubGroupId ? this.state.userProfile.SubGroupId['results'] : this.state.userProfile.SubGroupId as []}
+                                                                            selectedKeys={formik.values.SubGroupId as []}
                                                                             multiSelect={true} required={true} options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
                                                                             }
@@ -1243,7 +1254,6 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
                                                                                 formik.setFieldValue('SubGroupId', this.InitializedUserProfile.SubGroupId.filter(val => val !== ''));
-                                                                                console.log(this.state.userProfile.SubGroupId);
                                                                             }}
                                                                             errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
                                                                         />

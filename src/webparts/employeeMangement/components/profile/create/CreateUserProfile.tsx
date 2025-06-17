@@ -17,6 +17,8 @@ import AddAddress from './AddAdress';
 import AddQualification from './AddQualification';
 import AddDependant from './AddDependant';
 import AddExperience from './AddExperience';
+import AddPromotion from './AddPromotion';
+import AddPosting from './AddPosting';
 
 export default class CreateUserProfile extends React.Component<IEmployeeMangementProps, ICreateUserProfile> {
     public userProfile: IUserProfile;
@@ -86,7 +88,16 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
                 , WeeklyOff: empProfile.WeeklyOff.toString().replace(/,/g, '')
             }
         }, () => {
-            console.log({ isGeneralFormValid: this.state.isGeneralFormValid, userProfile: this.state.userProfile });
+            console.log({
+                isGeneralFormValid: this.state.isGeneralFormValid
+                , isAddressFormValid: this.state.isAddressFormValid
+                , isEducationFormValid: this.state.isEducationFormValid
+                , isDependantsFormValid: this.state.isDependantsFormValid
+                , isExperienceFormValid: this.state.isExperienceFormValid
+                , isPromotionsFormValid: this.state.isPromotionsFormValid
+                , isPostingFormValid: this.state.isPostingFormValid
+                , userProfile: this.state.userProfile
+            });
         });
     }
 
@@ -144,16 +155,23 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
                                 {(this.state.selectedLink === 'Experience' && this.state.userProfileLoadData) ?
                                     <AddExperience {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
                                 }
-                                {(this.state.isGeneralFormValid && this.state.isAddressFormValid && this.state.isEducationFormValid) && (
-                                    <div className='widget-card-body' style={{ height: 'auto' }}>
-                                        <div className='row'>
-                                            <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
-                                                <PrimaryButton type='button' data-automation-id='btn-save-profile' iconProps={{ iconName: 'Save' }}
-                                                    text='Submit Profile' onClick={() => { this.onProfileSubmit() }} />
+                                {(this.state.selectedLink === 'Promotions' && this.state.userProfileLoadData) ?
+                                    <AddPromotion {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
+                                }
+                                {(this.state.selectedLink === 'Posting' && this.state.userProfileLoadData) ?
+                                    <AddPosting {...this.props} sharedData={{ userProfile: this.state.userProfile, userProfileLoadData: this.state.userProfileLoadData }} onFormValidationChange={this.formValidationChange} /> : ''
+                                }
+                                {(this.state.isGeneralFormValid && this.state.isAddressFormValid && this.state.isEducationFormValid && this.state.isDependantsFormValid
+                                    && this.state.isExperienceFormValid && this.state.isPromotionsFormValid && this.state.isPostingFormValid) && (
+                                        <div className='widget-card-body' style={{ height: 'auto' }}>
+                                            <div className='row'>
+                                                <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
+                                                    <PrimaryButton type='button' data-automation-id='btn-save-profile' iconProps={{ iconName: 'Save' }}
+                                                        text='Submit Profile' onClick={() => { this.onProfileSubmit() }} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
                             </div>
                         </div>
                     </div>

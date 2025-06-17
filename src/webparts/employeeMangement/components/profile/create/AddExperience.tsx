@@ -336,7 +336,7 @@ export default class AddExperience extends React.Component<IEmployeeMangementPro
                                                                                         <Link type='button' onClick={() => {
                                                                                             faProps.push(ExperienceDetails);
                                                                                             formik.validateForm(formik.values);
-                                                                                            this.props.onFormValidationChange(false, formik.values, 'Address')
+                                                                                            this.props.onFormValidationChange(false, formik.values, 'Experience')
                                                                                         }}>
                                                                                             <Icon iconName='CircleAdditionSolid' />
                                                                                         </Link>
@@ -347,7 +347,7 @@ export default class AddExperience extends React.Component<IEmployeeMangementPro
                                                                                         <Link type='button' onClick={() => {
                                                                                             faProps.remove(n);
                                                                                             formik.validateForm(formik.values);
-                                                                                            this.props.onFormValidationChange(formik.isValid, formik.values, 'Address')
+                                                                                            this.props.onFormValidationChange(formik.isValid, formik.values, 'Experience')
                                                                                         }}>
                                                                                             <Icon iconName='SkypeCircleMinus' />
                                                                                         </Link>
