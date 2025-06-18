@@ -5,6 +5,7 @@ import { sp, SPBatch } from '@pnp/sp';
 import { ISiteUserInfo, ISiteUserProps } from '@pnp/sp/site-users/types';
 import { ISPChoiceFieldQuery, ISPQuery } from '../interface/ISPQuery';
 import { DataType, IMultiSPQuery } from '../interface/IMultiSPQuery';
+import { IListBulkData } from '../interface/IListBulkData';
 
 export default class SpCrudOps {
     public static async getData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IEmployeeMangementProps): Promise<any[]> {
@@ -70,51 +71,64 @@ export default class SpCrudOps {
         });
     }
 
-    public static async batchInsert(listName: string, data: [], props: IEmployeeMangementProps): Promise<IItemAddResult[]> {
+    public static async batchInsert(listBulkData: IListBulkData[], props: IEmployeeMangementProps): Promise<IItemAddResult[]> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
-        const list: IList = web.lists.getByTitle(listName);
-        const entityTypeFullName = await list.getListItemEntityTypeFullName();
         const batch = web.createBatch();
         const itemAddResult: IItemAddResult[] = [];
 
-        for (let d = 0; d < data.length; d++) {
-            await list.items.inBatch(batch).add(data[d], entityTypeFullName).then(b => {
-                itemAddResult.push(b);
-            }).catch((e) => { console.log(e); });
-        }
+        listBulkData.forEach(async item => {
+            if (item.data.length > 0) {
+                const list: IList = web.lists.getByTitle(item.listName);
+                const entityTypeFullName = await list.getListItemEntityTypeFullName();
+
+                for (let d = 0; d < item.data.length; d++) {
+                    await list.items.inBatch(batch).add(item.data[d], entityTypeFullName).then(b => {
+                        itemAddResult.push(b);
+                    }).catch((e) => { console.log(e); });
+                }
+            }
+        });
 
         return await batch.execute().then((v: void) => {
             return itemAddResult;
         });
     }
 
-    public static async batchUpdate(listName: string, data: [], props: IEmployeeMangementProps): Promise<IItemUpdateResult[]> {
+    public static async batchUpdate(listBulkData: IListBulkData[], props: IEmployeeMangementProps): Promise<IItemUpdateResult[]> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
-        const list: IList = web.lists.getByTitle(listName);
-        const entityTypeFullName = await list.getListItemEntityTypeFullName();
         const batch = web.createBatch();
         const itemUpdateResult: IItemUpdateResult[] = [];
 
-        for (let d = 0; d < data.length; d++) {
-            await list.items.getById(data[d]['Id']).inBatch(batch).update(data[d], entityTypeFullName).then(b => {
-                itemUpdateResult.push(b);
-                console.log(b);
-            }).catch((e) => { console.log(e); });
-        }
+        listBulkData.forEach(async item => {
+            if (item.data.length > 0) {
+                const list: IList = web.lists.getByTitle(item.listName);
+                const entityTypeFullName = await list.getListItemEntityTypeFullName();
+
+                for (let d = 0; d < item.data.length; d++) {
+                    await list.items.getById(item.data[d]['Id']).inBatch(batch).update(item.data[d], entityTypeFullName).then(b => {
+                        itemUpdateResult.push(b);
+                    }).catch((e) => { console.log(e); });
+                }
+            }
+        });
 
         return await batch.execute().then((v: void) => {
             return itemUpdateResult;
         });
     }
 
-    public static async batchDelete(listName: string, data: [], props: IEmployeeMangementProps): Promise<void> {
+    public static async batchDelete(listBulkData: IListBulkData[], props: IEmployeeMangementProps): Promise<void> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
-        const list: IList = web.lists.getByTitle(listName);
         const batch = web.createBatch();
 
-        for (let d = 0; d < data.length; d++) {
-            await list.items.getById(data[d]['Id']).inBatch(batch).delete();
-        }
+        listBulkData.forEach(async item => {
+            if (item.data.length > 0) {
+                const list: IList = web.lists.getByTitle(item.listName);
+                for (let d = 0; d < item.data.length; d++) {
+                    await list.items.getById(item.data[d]['Id']).inBatch(batch).delete();
+                }
+            }
+        });
 
         return await batch.execute();
     }

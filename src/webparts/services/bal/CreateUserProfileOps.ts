@@ -1,11 +1,21 @@
 import { IEmployeeMangementProps } from '../../employeeMangement/components/IEmployeeMangementProps';
 import spcrud from './SpCrud';
-import { IUserProfile, IUserProfileLoadData } from '../interface/IUserProfile';
+import upOps from './UserProfileOps';
+import { IUserProfile, IUserProfileItem, IUserProfileLoadData } from '../interface/IUserProfile';
 import { ISPChoiceFieldQuery, ISPQuery } from '../interface/ISPQuery';
-import { IFieldInfo, ISiteUserProps } from '@pnp/sp/presets/all';
+import { IFieldInfo, IFileAddResult, IItemAddResult, ISiteUserProps } from '@pnp/sp/presets/all';
 import Helper from '../utilities/Helper';
 import chs from '../../services/bal/Choices';
 import { DataType, IMultiSPQuery } from '../interface/IMultiSPQuery';
+import { IListBulkData } from '../interface/IListBulkData';
+import { IEmployeeDocuments } from '../interface/IEmployeeDocuments';
+import { IEmergencyContactItem } from '../interface/IEmergencyContact';
+import { ITrainingNCertificationItem } from '../interface/ITrainingNCertification';
+import { IAddressMasterItem } from '../interface/IAddressMaster';
+import { IQualificationMasterItem } from '../interface/IQualificationMaster';
+import { IDependentMasterItem } from '../interface/IDependentMaster';
+import { IExperienceDetailsItem } from '../interface/IExperienceDetails';
+import { IPostingHistoryItem } from '../interface/IPostingHistory';
 
 export default class CreateUserProfileOps {
     // #region UserProfile Master Query
@@ -292,5 +302,89 @@ export default class CreateUserProfileOps {
             });
     }
 
+    public static async insertUserProfile(userProfileParam: IUserProfile, props: IEmployeeMangementProps): Promise<any> {
+        Helper.hideShowLoader('block');
+        let userProfileItem: IUserProfileItem = userProfileParam;
+        let userProfileImageUrl = { Description: '', Url: '' };
 
+        if (userProfileParam.EmployeeImage.Document.length > 0) {
+            const imageFile = userProfileParam.EmployeeImage.Document[0];
+            let userProfileImage = await spcrud.uploadFile(props.currentSPContext.pageContext.legacyPageContext.siteServerRelativeUrl + "/EmployeeImages/", imageFile, props)
+            const item = await userProfileImage.file.getItem();
+            await item.update({ Title: imageFile.name });
+            userProfileImageUrl = { Description: imageFile.name, Url: props.currentSPContext.pageContext.legacyPageContext.webAbsoluteUrl + '/' + userProfileImage.data.ServerRelativeUrl };
+            // userProfileImageUrl = { Description: imageFile.name, Url: userProfileImage.data.LinkingUrl };
+            userProfileItem.ProfileImage = userProfileImageUrl;
+        }
+
+        return spcrud.insertData(this.strEmployeeMasterListTitle, userProfileItem, props).then(async (resp: IItemAddResult) => {
+            const strUserProfileID = resp.data.Id;
+            const userProfile: IUserProfile = await upOps.getUserProfileById(strUserProfileID, props);
+            let listBulkData: IListBulkData[] = [];
+
+            const emgContactItem: IEmergencyContactItem[] = userProfileParam.EmergencyContact;
+            listBulkData.push({
+                listName: 'EmergencyContact', data: emgContactItem
+                    .filter(opt => opt.Name1.trim() !== '')
+                    .map((item) => ({ ...item, EmployeeCode: userProfile.Title, Title: item.Name1, EmployeeName: userProfile.EmployeeName }))
+            });
+            const trainNCertItem: ITrainingNCertificationItem[] = userProfileParam.TrainingNCertificate;
+            listBulkData.push({
+                listName: 'EmpTrainingAndCertification', data: trainNCertItem
+                    .filter(opt => opt.Institute.trim() !== '')
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const addMasterItem: IAddressMasterItem[] = userProfileParam.AddressMaster;
+            listBulkData.push({
+                listName: 'AddressMaster', data: addMasterItem
+                    .filter(opt => opt.AddressType.trim() !== '')
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const qualficationMasterItem: IQualificationMasterItem[] = userProfileParam.QualificationMaster;
+            listBulkData.push({
+                listName: 'Qualification Master', data: qualficationMasterItem
+                    .filter(opt => opt.EducationId !== '')
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const dependantMasterItem: IDependentMasterItem[] = userProfileParam.DependentMaster;
+            listBulkData.push({
+                listName: 'Dependent Master', data: dependantMasterItem
+                    .filter(opt => opt.Name !== '')
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const expDetailsItem: IExperienceDetailsItem[] = userProfileParam.ExperienceDetails;
+            listBulkData.push({
+                listName: 'EmployeeExperienceDetail', data: expDetailsItem
+                    .filter(opt => opt.PreviousCompanyName !== '')
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const postingHistory: IPostingHistoryItem[] = userProfileParam.PostingHistory;
+            listBulkData.push({
+                listName: 'PostingHistory', data: postingHistory
+                    .filter(opt => opt.SubGroupId !== '')
+                    .map((item) => ({ ...item, EmployeeId: userProfile.Id }))
+            });
+
+            userProfileParam.EmployeeDocuments = userProfileParam.EmployeeDocuments.map((item) => ({ ...item, EmployeeId: userProfile.Id }));
+
+            return spcrud.batchInsert(listBulkData, props).then(async (resp) => {
+                let empDocuments = await this.uploadEmployeeDocuments(userProfileParam.EmployeeDocuments, 0, props);
+                Helper.hideShowLoader('none');
+                return resp;
+            });
+        });
+    }
+
+    public static async uploadEmployeeDocuments(empDocuments: IEmployeeDocuments[], f: number, props: IEmployeeMangementProps): Promise<IEmployeeDocuments[]> {
+        const file = empDocuments[f].Document[0];
+        const empDoc = await spcrud.uploadFile(props.currentSPContext.pageContext.legacyPageContext.siteServerRelativeUrl + "/EmployeeDocuments/", file, props);
+        const item = await empDoc.file.getItem();
+        return item.update({ EmployeeId: parseInt(empDocuments[f].EmployeeId), Category: empDocuments[f].Category, Title: empDocuments[f].Title }).then(async (brPlanDocResult) => {
+            f++;
+            if (f <= (empDocuments.length - 1)) {
+                await this.uploadEmployeeDocuments(empDocuments, f, props);
+            }
+            return empDocuments;
+        });
+    }
 }

@@ -81,3 +81,39 @@ export const DependentMaster = {
     MonthlyIncomeifany: '',
     Remarks: '',
 }
+
+export interface IDependentMasterItem {
+    Title?: string;
+    Confirmed_x0020_By_x0020_Employe?: string;
+    EmployeeName?: string;
+    Name?: string;
+    DOB?: Date | string;
+    RelationShip?: string;
+    StayingWithOfficer?: string;
+    DependentType?: string;
+    Status?: string;
+    ApproverResponse?: string;
+    Confirmed?: string;
+    Deleted?: string;
+    Gender?: string;
+    HR1Response?: string;
+    HR2Response?: string;
+    AdminApprovedDate?: Date | string;
+    ApprovedDate?: Date | string;
+    ConfirmedUpto?: Date | string;
+    DateOfJoining?: Date | string;
+    Employee_x0020_Confirmation_x002?: Date | string;
+    HR1ResponseDate?: Date | string;
+    HR2ResponseDate?: Date | string;
+    Todate?: Date | string;
+    HR1Remark?: string;
+    HR2Remark?: string;
+    ApprovedByAdmin?: string;
+    ApprovedByHR?: string;
+    Designation?: string;
+    EmployeeID?: string;
+    HR1ApproverName?: string;
+    HR2ApproverName?: string;
+    MonthlyIncomeifany?: string;
+    Remarks?: string;
+}

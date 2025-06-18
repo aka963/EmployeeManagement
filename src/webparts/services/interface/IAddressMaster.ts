@@ -61,3 +61,26 @@ export const AddressMaster: IAddressMaster = {
     Entitlement: '',
     SecurityDepositAmount: 0
 }
+
+export interface IAddressMasterItem {
+    Title?: string;
+    AddressType?: string;
+    Address?: string;
+    PinCode?: string;
+    ResedentialPhone?: string;
+    Country?: ICountry;
+    CountryId?: string
+    State?: IState;
+    StateId?: string;
+    City?: ICity;
+    CityId?: string;
+    EmployeeName?: string;
+    MobileNo?: string;
+    TelephoneNo?: string;
+    AccomodationType?: string;
+    LeaseStartDate?: Date | string;
+    LeaseEndDate?: Date | string;
+    MonthlyRent?: number;
+    Entitlement?: string;
+    SecurityDepositAmount?: number;
+}

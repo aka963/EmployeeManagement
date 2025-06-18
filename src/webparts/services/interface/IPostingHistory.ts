@@ -9,6 +9,7 @@ export interface IPostingHistory {
     Created?: Date | string;
     Modified?: Date | string;
     Employee?: IUserProps;
+    EmployeeId?: string | number;
     SubGroup?: ISubGroupMaster;
     SubGroupId?: string | number;
     FromDate?: Date | string;
@@ -27,4 +28,12 @@ export const PostingHistory = {
     SubGroupId: '',
     FromDate: null,
     ToDate: null
+}
+
+export interface IPostingHistoryItem {
+    Title?: string;
+    EmployeeId?: string | number;
+    SubGroupId?: string | number;
+    FromDate?: Date | string;
+    ToDate?: Date | string;
 }

@@ -46,3 +46,20 @@ export const QualificationMaster = {
     Category: '',
     YearOfPassing: '',
 }
+
+export interface IQualificationMasterItem {
+    Title?: string;
+    Comments?: string;
+    Duration?: string;
+    EducationId?: string | number;
+    EmployeeName?: string;
+    EndDate?: Date | string;
+    Flag?: string;
+    Score?: string;
+    Speclization?: string;
+    StartDate?: Date | string;
+    TodayDate?: Date | string;
+    Institute?: string;
+    Category?: string;
+    YearOfPassing?: string;
+}

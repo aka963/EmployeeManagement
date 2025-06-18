@@ -25,10 +25,10 @@ export default class UserProfileOps {
         + ',EmployeeType,CurrentOfficeLocation,ShiftAllocated,BankName,Unit,DeputationOfficeLocation,ShiftAllocated'
         + ',SubGroup,Scale,DesignationPromotedTo';
 
-        public static strEmployeeMasterListTitleDASH: string = 'EmployeeMaster';
+    public static strEmployeeMasterListTitleDASH: string = 'EmployeeMaster';
 
-        public static strEmployeeMasterColumnsDASH: string = 'Title,EmployeeName,FirstName,Scale/Title,Grade/Title,CompanyEmail,CurrentOfficeLocation/Title,MobileNo_x002e_,Designation/Title,UserName/Name,EmployeeTitle,ReportingManager/Title'
-        public static strEmployeeMasterExpandColumnsDASH: string = 'UserName,CurrentOfficeLocation,ReportingManager,Designation,Grade,Scale'
+    public static strEmployeeMasterColumnsDASH: string = 'Title,EmployeeName,FirstName,Scale/Title,Grade/Title,CompanyEmail,CurrentOfficeLocation/Title,MobileNo_x002e_,Designation/Title,UserName/Name,EmployeeTitle,ReportingManager/Title'
+    public static strEmployeeMasterExpandColumnsDASH: string = 'UserName,CurrentOfficeLocation,ReportingManager,Designation,Grade,Scale'
 
 
     public static strAddressMasterListTitle: string = 'AddressMaster';
@@ -157,7 +157,7 @@ export default class UserProfileOps {
             spListQuery.push({
                 ListTitle: this.strPostingHistoryListTitle, SelectQuery: this.strPostingHistoryColumns
                 , ExpandQuery: this.strPostingHistoryExpandColumns
-                , FilterQuery: '(Title eq \'' + userProfile.Title + '\')'
+                , FilterQuery: '(Employee/Id eq \'' + userProfile.Id + '\')'
                 , SortQuery: { orderBy: 'Id', ascending: false }
             });
 
@@ -180,8 +180,8 @@ export default class UserProfileOps {
             return userProfile;
         });
     }
-   
- public static async getAllUserProfile(props: IEmployeeMangementProps): Promise<IUserProfile> {
+
+    public static async getAllUserProfile(props: IEmployeeMangementProps): Promise<IUserProfile> {
         let spListQueryAll: ISPQuery[] = [];
         spListQueryAll.push({
             ListTitle: this.strEmployeeMasterListTitleDASH, SelectQuery: this.strEmployeeMasterColumnsDASH
@@ -191,7 +191,6 @@ export default class UserProfileOps {
         });
         Helper.hideShowLoader('block');
 
-     
         return await spcrud.getBatchData(spListQueryAll, props).then(async (resp) => {
             const userProfile: IUserProfile = resp;
             Helper.hideShowLoader('none');
@@ -204,5 +203,19 @@ export default class UserProfileOps {
             const userProfile: IUserProfile = {};
             return userProfile;
         });
+    }
+
+    public static async getUserProfileById(strUserProfileID: number, props: IEmployeeMangementProps): Promise<IUserProfile> {
+        return await spcrud.getData(this.strEmployeeMasterListTitle, this.strEmployeeMasterColumns, this.strEmployeeMasterExpandColumns
+            , '(Id eq \'' + strUserProfileID + '\')', { column: 'Id', isAscending: true }, props).then(async (resp) => {
+                const userProfile: IUserProfile = resp[0];
+                Helper.hideShowLoader('none');
+                return userProfile;
+            }).catch((e) => {
+                Helper.hideShowLoader('none');
+                console.log(e);
+                const userProfile: IUserProfile = {};
+                return userProfile;
+            });
     }
 }

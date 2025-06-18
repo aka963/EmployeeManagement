@@ -1,6 +1,6 @@
 import { IUserProps, UserProps } from "./IUserProps";
 
-export interface IEmployeeDocuments {
+export interface IEmployeeImages {
     Id?: number;
     Title?: string;
     Document?: FileList
@@ -8,16 +8,13 @@ export interface IEmployeeDocuments {
     FileLeafRef?: string;
     File_x0020_Type?: string;
     FileRef?: string;
-    Employee?: { Id?: number, Title?: string, EmployeeName?: string };
-    EmployeeId?: string;
-    Category?: string;
     Author?: IUserProps;
     Editor?: IUserProps;
     Created?: Date;
     Modified?: Date;
 }
 
-export const EmployeeDocuments = {
+export const EmployeeImages = {
     Id: 0,
     Title: '',
     Document: null,
@@ -25,18 +22,13 @@ export const EmployeeDocuments = {
     FileLeafRef: '',
     File_x0020_Type: '',
     FileRef: '',
-    Employee: { Id: null, Title: '', EmployeeName: '' },
-    EmployeeId: '',
-    Category: '',
     Author: UserProps,
     Editor: UserProps,
     Created: null,
     Modified: null
 }
 
-export interface IEmployeeDocumentsItem {
+export interface IEmployeeImagesItem {
     Title?: string;
     Document?: FileList
-    EmployeeId?: string;
-    Category?: string;
 }

@@ -406,7 +406,9 @@ export default class AddAddress extends React.Component<IEmployeeMangementProps,
                                                         <div className='row'>
                                                             <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
                                                                 <PrimaryButton type='button' data-automation-id='btn-next-profile' iconProps={{ iconName: 'Next' }}
-                                                                    text='Next' onClick={() => { this.props.onFormValidationChange(formik.isValid, formik.values, 'Address') }} />
+                                                                    text='Next' onClick={() => {
+                                                                        this.props.onFormValidationChange(formik.isValid, formik.values, 'Address');
+                                                                        window.location.href = '#/createUserProfile/Education'; }} />
                                                             </div>
                                                         </div>
                                                     </div>

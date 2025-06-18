@@ -39,9 +39,9 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         this.state = { userProfile: props.sharedData.userProfile, userProfileLoadData: props.sharedData.userProfileLoadData };
         this.setState({ userProfile: { SubGroupId: props.sharedData.userProfile.SubGroupId } });
         this.InitializedUserProfile = props.sharedData.userProfile;
-        this.InitializedUserProfile.SubGroupId = props.sharedData.userProfile.SubGroupId['results'] ? props.sharedData.userProfile.SubGroupId['results'] : props.sharedData.userProfile.SubGroupId as [];
+        this.InitializedUserProfile.SubGroupId = (props.sharedData.userProfile.SubGroupId && props.sharedData.userProfile.SubGroupId['results']) ? props.sharedData.userProfile.SubGroupId['results'] : props.sharedData.userProfile.SubGroupId as [];
         this._getPeoplePickerItems = this._getPeoplePickerItems.bind(this);
-        this.onProfileSubmit = this.onProfileSubmit.bind(this);
+        // this.onProfileSubmit = this.onProfileSubmit.bind(this);
         this.setFormikInstance = this.setFormikInstance.bind(this);
     }
 
@@ -62,14 +62,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         }
     }
 
-    private onProfileSubmit(values: IUserProfile, actions?: FormikActions<IUserProfile>): void {
-        console.log(this.isFormValid);
-        if (this.isFormValid) {
-            this.setState({ userProfile: values });
-            console.log('Submitted values:', this.state.userProfile);
-        }
-        // actions.setSubmitting(false);
-    }
+    // private onProfileSubmit(values: IUserProfile, actions?: FormikActions<IUserProfile>): void {
+    //     console.log(this.isFormValid);
+    //     if (this.isFormValid) {
+    //         this.setState({ userProfile: values });
+    //         console.log('Submitted values:', this.state.userProfile);
+    //     }
+    //     // actions.setSubmitting(false);
+    // }
 
     public componentDidMount(): void {
         if (this.formikInstance) {
@@ -238,7 +238,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
             , OfficeLocationId: yup.string().trim().required('Office Location is required.')
             , Role: yup.string().trim().required('Role is required.')
             , ScaleId: yup.string().trim().required('Scale is required.')
-            , GardeId: yup.string().trim().required('Garde is required.')
+            , GradeId: yup.string().trim().required('Garde is required.')
             , DesignationId: yup.string().trim().required('Designation is required.')
             , PayscaleId: yup.string().trim().required('Payscale is required.')
             , SubGroupId: yup.array().min(1, 'Please add at least one Group').required('Group is required')
@@ -258,6 +258,58 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 , StartDate: yup.date().nullable().required('Start Date is required.').typeError('A valid date is required')
                 , EndDate: yup.date().nullable().required('End Date is required.').typeError('A valid date is required')
             }))
+            , EmployeeImage: yup.object().shape({
+                Title: yup.string(),
+                Document: yup.mixed()
+                    .test(
+                        "fileType",
+                        "Only jpg, jpeg, and png are allowed.",
+                        (file) => {
+                            // If file is not selected, this test will not pass because of .required above.
+                            if (file && file.length > 0) {
+                                // If your file input supports multiple files, check the first file, e.g., value[0]
+                                return [
+                                    "image/jpeg",
+                                    "image/jpg",
+                                    "image/png"
+                                ].includes(file[0].type);
+                            } else {
+                                return true;
+                            }
+                        }
+                    )
+                    .test("fileName",
+                        "Please avoid special characters in document name",
+                        (file) => {
+                            if (file && file.length > 0) {
+                                let spcPattern = new RegExp(/[!@#$%^&*(),+=;'?":[\]{}|/<>\\]/g);
+                                if (!spcPattern.test(file[0].name)) {
+                                    return true;
+                                }
+                                else {
+                                    // document.getElementById('aadharCardDoc').focus();
+                                    return false;
+                                }
+                            }
+                            else { return true; }
+                        })
+                    .test(
+                        "fileSize",
+                        "Please upload file of size less than 2 MB",
+                        (file) => {
+                            if (file && file.length > 0) {
+                                const sizeInBytes = 2097152;
+                                //console.log(file);
+                                if (file[0].size <= sizeInBytes) {
+                                    return true;
+                                } else {
+                                    // document.getElementById('aadharCardDoc').focus();
+                                    return false;
+                                }
+                            }
+                            else { return true; }
+                        })
+            })
         });
 
         return (
@@ -269,7 +321,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                 }}>
                 {(formik) => (
                     <form onSubmit={formik.handleSubmit} onBlur={(ev) => {
-                        this.props.onFormValidationChange(formik.isValid, formik.values, 'General');
+                        this.props.onFormValidationChange(formik.isValid, formik.values, 'General'); formik.handleBlur
                     }}>
                         {/* {(formik.isValid && Object.keys(formik.errors).length === 0) && (this.props.onFormValidationChange(formik.isValid, formik.values))} */}
                         {/* <TextField className='form-control' placeholder='Auto Generated' id='Title' name='Title'
@@ -286,7 +338,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
 
                         <div className='body-content'>
                             <div className='row'>
-                                {/* <pre>{JSON.stringify({ IsValid: formik.isValid, Errors: Object.keys(formik.errors).length }, null, 2)}</pre> */}
+                                {/* <pre>{JSON.stringify({ IsValid: formik.isValid, Errors: formik.errors, NumberOfErrors: Object.keys(formik.errors).length }, null, 2)}</pre> */}
                                 <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
                                     <div className='widget-card'>
                                         <div className='scrollable-pane-container'>
@@ -782,6 +834,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldValue(`EmployeeDocuments.${0}.Category`, 'Aadhaar');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${0}.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${0}.Title`, files[0].name);
                                                                                 }
                                                                                 else {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${0}.Document`, null);
@@ -803,6 +856,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldValue(`EmployeeDocuments.${1}.Category`, 'Voter ID');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${1}.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${1}.Title`, files[0].name);
                                                                                 }
                                                                                 else {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${1}.Document`, null);
@@ -836,6 +890,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldValue(`EmployeeDocuments.${2}.Category`, 'PAN');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${2}.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${2}.Title`, files[0].name);
                                                                                 }
                                                                                 else {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${2}.Document`, null);
@@ -859,6 +914,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldValue(`EmployeeDocuments.${3}.Category`, 'Driving License');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${3}.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${3}.Title`, files[0].name);
                                                                                 }
                                                                                 else {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${3}.Document`, null);
@@ -896,6 +952,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                 formik.setFieldValue(`EmployeeDocuments.${4}.Category`, 'Passport');
                                                                                 if (files.length > 0) {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${4}.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeDocuments.${4}.Title`, files[0].name);
                                                                                 }
                                                                                 else {
                                                                                     formik.setFieldValue(`EmployeeDocuments.${4}.Document`, null);
@@ -933,6 +990,23 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             }}
                                                                         ></DatePicker>
                                                                         <ErrorMessage name='PassportExpiryDate' component='div' className='error-message' />
+                                                                    </div>
+                                                                    <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
+                                                                        <Label>Profile Image:&nbsp;</Label>
+                                                                        <input type='file' id={`EmployeeImage-Document`} name={`EmployeeImage.Document`} onBlur={formik.handleBlur}
+                                                                            value={formik.values[`EmployeeImage.Document`]}
+                                                                            onChange={({ currentTarget }) => {
+                                                                                const files = currentTarget.files;
+                                                                                if (files.length > 0) {
+                                                                                    formik.setFieldValue(`EmployeeImage.Document`, files);
+                                                                                    formik.setFieldValue(`EmployeeImage.Title`, files[0].name);
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue(`EmployeeImage.Document`, null);
+                                                                                }
+                                                                            }} />
+                                                                        {formik.values.EmployeeImage.Document ? formik.values.EmployeeImage.Document[0].name : ''}
+                                                                        <ErrorMessage name={`EmployeeImage.Document`} component='div' className='error-message' />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1098,21 +1172,21 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Grade:&nbsp;</Label>
-                                                                        <Dropdown placeHolder='Select Grade' className='form-control' id='GardeId' options={
+                                                                        <Dropdown placeHolder='Select Grade' className='form-control' id='GradeId' options={
                                                                             (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.GradeChoices : []
-                                                                        } required={true} selectedKey={formik.values.GardeId}
+                                                                        } required={true} selectedKey={formik.values.GradeId}
                                                                             onFocus={(e) => {
-                                                                                formik.setFieldTouched('GardeId', true);
+                                                                                formik.setFieldTouched('GradeId', true);
                                                                                 // console.log(formik);
                                                                             }}
                                                                             onBlur={(e) => {
-                                                                                formik.setFieldTouched('GardeId', true);
+                                                                                formik.setFieldTouched('GradeId', true);
                                                                                 // console.log(formik);
                                                                             }}
                                                                             onChanged={(val) => {
-                                                                                formik.setFieldValue('GardeId', val.key);
+                                                                                formik.setFieldValue('GradeId', val.key);
                                                                             }}
-                                                                            errorMessage={formik.errors.GardeId && formik.touched.GardeId ? formik.errors.GardeId as string : ''}
+                                                                            errorMessage={formik.errors.GradeId && formik.touched.GradeId ? formik.errors.GradeId as string : ''}
                                                                         />
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
@@ -1190,7 +1264,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     </div>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Is Active?:&nbsp;</Label>
-                                                                        <Checkbox id='Active' name='Active' value={formik.values.Active} onChange={(val, checked) => {
+                                                                        <Checkbox id='Active' name='Active' checked={formik.values.Active} value={formik.values.Active} onChange={(val, checked) => {
                                                                             formik.setFieldValue('Active', checked);
                                                                         }} />
                                                                     </div>
@@ -1214,14 +1288,14 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                 <div className='row'>
                                                                     <div className='col-xs-3 col-sm-3 col-md-3 col-lg-3 profile-body-item'>
                                                                         <Label>Group:&nbsp;</Label>
-                                                                        <pre>{JSON.stringify({
+                                                                        {/* <pre>{JSON.stringify({
                                                                             SubGroupId: this.state.userProfile.SubGroupId
                                                                             , Initialized: this.InitializedUserProfile.SubGroupId
                                                                             , formik: formik.values.SubGroupId
-                                                                        }, null, 2)}</pre>
+                                                                        }, null, 2)}</pre> */}
 
                                                                         <Dropdown placeHolder='Select Group' className='form-control' id='SubGroupId'
-                                                                            selectedKeys={formik.values.SubGroupId as []}
+                                                                            selectedKeys={formik.values.SubGroupId}
                                                                             multiSelect={true} required={true} options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.SubGroupChoices : []
                                                                             }
@@ -1643,7 +1717,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                 <div className='row'>
                                                     <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12' style={{ textAlign: 'center' }}>
                                                         <PrimaryButton type='button' data-automation-id='btn-next-profile' iconProps={{ iconName: 'Next' }}
-                                                            text='Next' onClick={() => { this.props.onFormValidationChange(formik.isValid, formik.values, 'General') }} />
+                                                            text='Next' onClick={() => {
+                                                                this.props.onFormValidationChange(formik.isValid, formik.values, 'General');
+                                                                window.location.href = '#/createUserProfile/Address';
+                                                            }} />
                                                     </div>
                                                 </div>
                                             </div>

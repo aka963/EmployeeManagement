@@ -1,11 +1,11 @@
-import { ITrainingNCertification, TrainingNCertification } from "./ITrainingNCertification";
-import { AddressMaster, IAddressMaster } from "./IAddressMaster";
-import { DependentMaster, IDependentMaster } from "./IDependentMaster";
-import { EmergencyContact, IEmergencyContact } from "./IEmergencyContact";
-import { ExperienceDetails, IExperienceDetails } from "./IExperienceDetails";
-import { IQualificationMaster, QualificationMaster } from "./IQualificationMaster";
+import { ITrainingNCertification, ITrainingNCertificationItem, TrainingNCertification } from "./ITrainingNCertification";
+import { AddressMaster, IAddressMaster, IAddressMasterItem } from "./IAddressMaster";
+import { DependentMaster, IDependentMaster, IDependentMasterItem } from "./IDependentMaster";
+import { EmergencyContact, IEmergencyContact, IEmergencyContactItem } from "./IEmergencyContact";
+import { ExperienceDetails, IExperienceDetails, IExperienceDetailsItem } from "./IExperienceDetails";
+import { IQualificationMaster, IQualificationMasterItem, QualificationMaster } from "./IQualificationMaster";
 import { IRedemptionCode, RedemptionCode } from "./IRedemptionCode";
-import { IPostingHistory, PostingHistory } from "./IPostingHistory";
+import { IPostingHistory, IPostingHistoryItem, PostingHistory } from "./IPostingHistory";
 import { IUserProps, UserProps } from "./IUserProps";
 import { BankMaster, IBankMaster } from "./IBankMaster";
 import { IOfficeMaster, OfficeMaster } from "./IOfficeMaster";
@@ -20,11 +20,12 @@ import { IUnitMaster, UnitMaster } from "./IUnitMaster";
 import { IDropdownOption } from "office-ui-fabric-react/lib/Dropdown";
 import { number, string } from "yup";
 import { ITrainingCertificationMaster } from "./ITrainingCertificationMaster";
-import { EmployeeDocuments, IEmployeeDocuments } from "./IEmployeeDocuments";
+import { EmployeeDocuments, IEmployeeDocuments, IEmployeeDocumentsItem } from "./IEmployeeDocuments";
 import { ICountry } from "./ICountry";
 import { IState } from "./IState";
 import { ICity } from "./ICity";
 import { IEducationMaster } from "./IEducationMaster";
+import { EmployeeImages, IEmployeeImages, IEmployeeImagesItem } from "./IEmployeeImages";
 
 export interface IUserProfile {
     UserName?: IUserProps;
@@ -38,10 +39,15 @@ export interface IUserProfile {
     AlternateReportingManager?: IUserProps;
     AlternateReportingManagerId?: string | number;
     CashApprover?: IUserProps;
+    CashApproverId?: string | number;
     NEFTApprover?: IUserProps;
+    NEFTApproverId?: string | number;
     HHApproverName?: IUserProps;
+    HHApproverNameId?: string | number;
     Author?: IUserProps;
+    AuthorId?: string | number;
     Editor?: IUserProps;
+    EditorId?: string | number;
     Created?: Date | string
     Modified?: Date | string
     MobileNo_x002e_?: string;
@@ -162,6 +168,7 @@ export interface IUserProfile {
     QualificationMaster?: IQualificationMaster[];
     ExperienceDetails?: IExperienceDetails[];
     PostingHistory?: IPostingHistory[];
+    EmployeeImage?: IEmployeeImages;
 }
 
 export interface IUserProfileLoadData {
@@ -227,10 +234,15 @@ export const InitializedUserProfile: IUserProfile = {
     AlternateReportingManager: UserProps,
     AlternateReportingManagerId: '',
     CashApprover: UserProps,
+    CashApproverId: '',
     NEFTApprover: UserProps,
+    NEFTApproverId: '',
     HHApproverName: UserProps,
+    HHApproverNameId: '',
     Author: UserProps,
+    AuthorId: '',
     Editor: UserProps,
+    EditorId: '',
     Created: null,
     Modified: null,
     MobileNo_x002e_: '',
@@ -245,6 +257,7 @@ export const InitializedUserProfile: IUserProfile = {
     EmployeeType: EmployeeTypeMaster,
     EmployeeTypeId: '',
     Unit: UnitMaster,
+    UnitId: '',
     OfficeLocation: OfficeMaster,
     OfficeLocationId: '',
     CurrentOfficeLocation: OfficeMaster,
@@ -350,4 +363,120 @@ export const InitializedUserProfile: IUserProfile = {
     QualificationMaster: [QualificationMaster],
     ExperienceDetails: [ExperienceDetails],
     PostingHistory: [PostingHistory],
+    EmployeeImage: EmployeeImages
+}
+
+export interface IUserProfileItem {
+    UserNameId?: string | number;
+    LeaveLevel1Id?: string | number;
+    LeaveLevel2Id?: string | number;
+    ReportingManagerId?: string | number;
+    AlternateReportingManagerId?: string | number;
+    CashApproverId?: string | number;
+    NEFTApproverId?: string | number;
+    HHApproverNameId?: string | number;
+    MobileNo_x002e_?: string;
+    DesignationId?: string | number;
+    PayscaleId?: string | number;
+    ScaleId?: string | number;
+    GradeId?: string | number;
+    EmployeeTypeId?: string | number,
+    UnitId?: string | number;
+    OfficeLocationId?: string | number;
+    CurrentOfficeLocationId?: string | number;
+    DeputationOfficeLocationId?: string | number;
+    CompanyEmail?: string;
+    IFSCCode?: string;
+    Phone_x0020_No?: string;
+    DateOfJoining?: Date | string
+    ShiftAllocatedId?: string;
+    FirstName?: string;
+    LastName?: string;
+    EmployeeName?: string;
+    PAN_x0020_No?: string;
+    BankNameId?: string | number;
+    AccountNo?: string;
+    PassportExpiryDate?: Date | string;
+    DOB?: Date | string;
+    Role?: string;
+    SubGroupId?: [] | { results: [] };
+    Title?: string;
+    Gender?: string;
+    BloodGroup?: string;
+    Extension?: string;
+    ProfileImage?: { Description?: string; Url?: string };
+    FaxNo?: string;
+    VCDisplayNameEnglish?: string;
+    VCDisplayNameHindi?: string;
+    Active?: boolean;
+    SWCEligibility?: boolean;
+    AadharCardNo?: string;
+    AlternateEmail?: string;
+    AzureADEmailID?: string;
+    BranchName?: string;
+    DMDType?: string;
+    DrivingLicenseNumber?: string;
+    EmployeeID?: string;
+    EmpType?: string;
+    ESIC_x0020_Remarks?: string;
+    ESICNumber?: string;
+    FatherName?: string;
+    FirstName_Hindi?: string;
+    LastName_Hindi?: string;
+    Level1EmailID?: string;
+    MiddleName?: string;
+    MiddleName_Hindi?: string;
+    MobileNo?: string;
+    MotherName?: string;
+    Nationality?: string;
+    NPS?: string;
+    PassportNo_x002e_?: string;
+    PaternityLeaveCount?: string;
+    PFNumber?: string;
+    PranNo?: string;
+    VoterID_x0020_No?: string;
+    MaternityLeave_Count?: number;
+    TotalEOL?: number;
+    TotalMaternityLeave?: number;
+    Date_x0020_Of_x0020_Resign?: Date | string
+    Date_x0020_Of_x0020_Resign_x0020?: Date | string
+    DateofAppointment?: Date | string
+    DateOfConfirmation?: Date | string
+    DateOfPromotion?: Date | string
+    DrivingLicenseExpiryDate?: Date | string
+    EffectiveDate?: Date | string;
+    ESI_x0020_JoiningDate?: Date | string
+    ESI_x0020_LeavingDate?: Date | string
+    LTCDate?: Date | string
+    MarriageDate?: Date | string;
+    PassportIssueDate?: Date | string;
+    ShiftEffectiveFrom?: Date | string;
+    TempDOB?: Date | string;
+    TodayDate?: Date | string
+    ContractType?: string;
+    EmployeeTitle?: string;
+    MartialStatus?: string;
+    PhysicallyHandicaped?: string;
+    ProbationPeriod?: string;
+    SingleParent?: string;
+    WeeklyOff?: string | [];
+    Religion?: string;
+    Caste?: string;
+    DesignationJoinedAs?: string;
+    AppointmentDate?: Date | string
+    DesignationAppointedAs?: string;
+    ConfirmationDate?: Date | string
+    PromotionScale?: string;
+    PromotionEffectiveDate?: Date | string;
+    DesignationPromotedToId?: string | number;
+    PromotionConfirmationDate?: Date | string;
+    EmployeeImage?: IEmployeeImagesItem;
+    // EmployeeDocuments?: IEmployeeDocumentsItem[];
+    // EmergencyContact?: IEmergencyContactItem[];
+    // AddressMaster?: IAddressMasterItem[];
+    // DependentMaster?: IDependentMasterItem[];
+    // TrainingNCertificate?: ITrainingNCertificationItem[];
+    // QualificationMaster?: IQualificationMasterItem[];
+    // ExperienceDetails?: IExperienceDetailsItem[];
+    // PostingHistory?: IPostingHistoryItem[];
 }

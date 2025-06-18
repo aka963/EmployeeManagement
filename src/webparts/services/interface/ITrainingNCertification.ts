@@ -9,6 +9,7 @@ export interface ITrainingNCertification {
     Created?: Date;
     Modified?: Date;
     ApprovedBy?: IUserProps;
+    ApprovedById?: string | number;
     Description?: string;
     EmployeeName?: string;
     EndDate?: Date | string;
@@ -45,4 +46,21 @@ export const TrainingNCertification = {
     StartDate: null,
     TodayDate: null,
     TrainingCost: '',
+}
+
+export interface ITrainingNCertificationItem {
+    Title?: string;
+    ApprovedById?: string | number;
+    Description?: string;
+    EmployeeName?: string;
+    EndDate?: Date | string;
+    ExperienceInId?: string | number;
+    Grade?: string;
+    Institute?: string;
+    Location?: string;
+    NoOfDays?: string;
+    NoOfHours?: string;
+    StartDate?: Date | string;
+    TodayDate?: Date;
+    TrainingCost?: string | number;
 }

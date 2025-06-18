@@ -110,9 +110,24 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
 
     private onProfileSubmit(): void {
         console.log(this.state.isGeneralFormValid);
-        if (this.state.isGeneralFormValid) {
-            console.log('Submitted values:', this.state.userProfile);
-            // window.location.href = '#/myprofile/General';
+        if (this.state.isGeneralFormValid && this.state.isAddressFormValid && this.state.isEducationFormValid && this.state.isDependantsFormValid
+            && this.state.isExperienceFormValid && this.state.isPromotionsFormValid && this.state.isPostingFormValid) {
+            console.log({
+                isGeneralFormValid: this.state.isGeneralFormValid
+                , isAddressFormValid: this.state.isAddressFormValid
+                , isEducationFormValid: this.state.isEducationFormValid
+                , isDependantsFormValid: this.state.isDependantsFormValid
+                , isExperienceFormValid: this.state.isExperienceFormValid
+                , isPromotionsFormValid: this.state.isPromotionsFormValid
+                , isPostingFormValid: this.state.isPostingFormValid
+                , SubmittedValues: this.state.userProfile
+            });
+
+            cupOps.insertUserProfile(this.state.userProfile, this.props).then((resp) => {
+                console.log(resp);
+                this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView = this.state.userProfile.UserName.Name
+                window.location.href = '#/viewProfile/General';
+            });
         }
         // actions.setSubmitting(false);
     }
