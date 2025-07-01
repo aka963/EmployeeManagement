@@ -30,10 +30,10 @@ export const PostingHistory = {
     ToDate: null
 }
 
-export interface IPostingHistoryItem {
-    Title?: string;
-    EmployeeId?: string | number;
-    SubGroupId?: string | number;
-    FromDate?: Date | string;
-    ToDate?: Date | string;
+export class IPostingHistoryItem {
+    Title?: string = '';
+    EmployeeId?: string | number = '';
+    SubGroupId?: string | number = '';
+    FromDate?: Date | string = null;
+    ToDate?: Date | string = null;
 }

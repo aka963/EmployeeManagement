@@ -104,7 +104,7 @@ export interface IUserProfile {
     BranchName?: string;
     DMDType?: string;
     DrivingLicenseNumber?: string;
-    EmployeeID?: string;
+    // EmployeeID?: string;
     EmpType?: string;
     ESIC_x0020_Remarks?: string;
     ESICNumber?: string;
@@ -114,7 +114,7 @@ export interface IUserProfile {
     Level1EmailID?: string;
     MiddleName?: string;
     MiddleName_Hindi?: string;
-    MobileNo?: string;
+    // MobileNo?: string;
     MotherName?: string;
     Nationality?: string;
     NPS?: string;
@@ -147,7 +147,7 @@ export interface IUserProfile {
     PhysicallyHandicaped?: string;
     ProbationPeriod?: string;
     SingleParent?: string;
-    WeeklyOff?: string | [];
+    WeeklyOff?: [] | { results: [] };
     Religion?: string;
     Caste?: string;
     DesignationJoinedAs?: string;
@@ -299,7 +299,7 @@ export const InitializedUserProfile: IUserProfile = {
     BranchName: '',
     DMDType: '',
     DrivingLicenseNumber: '',
-    EmployeeID: '',
+    // EmployeeID: '',
     EmpType: '',
     ESIC_x0020_Remarks: '',
     ESICNumber: '',
@@ -309,7 +309,7 @@ export const InitializedUserProfile: IUserProfile = {
     Level1EmailID: '',
     MiddleName: '',
     MiddleName_Hindi: '',
-    MobileNo: '',
+    // MobileNo: '',
     MotherName: '',
     Nationality: '',
     NPS: '',
@@ -366,110 +366,110 @@ export const InitializedUserProfile: IUserProfile = {
     EmployeeImage: EmployeeImages
 }
 
-export interface IUserProfileItem {
-    UserNameId?: string | number;
-    LeaveLevel1Id?: string | number;
-    LeaveLevel2Id?: string | number;
-    ReportingManagerId?: string | number;
-    AlternateReportingManagerId?: string | number;
-    CashApproverId?: string | number;
-    NEFTApproverId?: string | number;
-    HHApproverNameId?: string | number;
-    MobileNo_x002e_?: string;
-    DesignationId?: string | number;
-    PayscaleId?: string | number;
-    ScaleId?: string | number;
-    GradeId?: string | number;
-    EmployeeTypeId?: string | number,
-    UnitId?: string | number;
-    OfficeLocationId?: string | number;
-    CurrentOfficeLocationId?: string | number;
-    DeputationOfficeLocationId?: string | number;
-    CompanyEmail?: string;
-    IFSCCode?: string;
-    Phone_x0020_No?: string;
+export class IUserProfileItem {
+    UserNameId?: string | number = null;
+    LeaveLevel1Id?: string | number = null;
+    LeaveLevel2Id?: string | number = null;
+    ReportingManagerId?: string | number = null;
+    AlternateReportingManagerId?: string | number = null;
+    CashApproverId?: string | number = null;
+    NEFTApproverId?: string | number = null;
+    HHApproverNameId?: string | number = null;
+    MobileNo_x002e_?: string = null;
+    DesignationId?: string | number = null;
+    PayscaleId?: string | number = null;
+    ScaleId?: string | number = null;
+    GradeId?: string | number = null;
+    EmployeeTypeId?: string | number;
+    UnitId?: string | number = null;
+    OfficeLocationId?: string | number = null;
+    CurrentOfficeLocationId?: string | number = null;
+    DeputationOfficeLocationId?: string | number = null;
+    CompanyEmail?: string = null;
+    IFSCCode?: string = null;
+    Phone_x0020_No?: string = null;
     DateOfJoining?: Date | string
-    ShiftAllocatedId?: string;
-    FirstName?: string;
-    LastName?: string;
-    EmployeeName?: string;
-    PAN_x0020_No?: string;
-    BankNameId?: string | number;
-    AccountNo?: string;
-    PassportExpiryDate?: Date | string;
-    DOB?: Date | string;
-    Role?: string;
-    SubGroupId?: [] | { results: [] };
-    Title?: string;
-    Gender?: string;
-    BloodGroup?: string;
-    Extension?: string;
-    ProfileImage?: { Description?: string; Url?: string };
-    FaxNo?: string;
-    VCDisplayNameEnglish?: string;
-    VCDisplayNameHindi?: string;
-    Active?: boolean;
-    SWCEligibility?: boolean;
-    AadharCardNo?: string;
-    AlternateEmail?: string;
-    AzureADEmailID?: string;
-    BranchName?: string;
-    DMDType?: string;
-    DrivingLicenseNumber?: string;
-    EmployeeID?: string;
-    EmpType?: string;
-    ESIC_x0020_Remarks?: string;
-    ESICNumber?: string;
-    FatherName?: string;
-    FirstName_Hindi?: string;
-    LastName_Hindi?: string;
-    Level1EmailID?: string;
-    MiddleName?: string;
-    MiddleName_Hindi?: string;
-    MobileNo?: string;
-    MotherName?: string;
-    Nationality?: string;
-    NPS?: string;
-    PassportNo_x002e_?: string;
-    PaternityLeaveCount?: string;
-    PFNumber?: string;
-    PranNo?: string;
-    VoterID_x0020_No?: string;
-    MaternityLeave_Count?: number;
-    TotalEOL?: number;
-    TotalMaternityLeave?: number;
-    Date_x0020_Of_x0020_Resign?: Date | string
-    Date_x0020_Of_x0020_Resign_x0020?: Date | string
-    DateofAppointment?: Date | string
-    DateOfConfirmation?: Date | string
-    DateOfPromotion?: Date | string
-    DrivingLicenseExpiryDate?: Date | string
-    EffectiveDate?: Date | string;
-    ESI_x0020_JoiningDate?: Date | string
-    ESI_x0020_LeavingDate?: Date | string
-    LTCDate?: Date | string
-    MarriageDate?: Date | string;
-    PassportIssueDate?: Date | string;
-    ShiftEffectiveFrom?: Date | string;
-    TempDOB?: Date | string;
-    TodayDate?: Date | string
-    ContractType?: string;
-    EmployeeTitle?: string;
-    MartialStatus?: string;
-    PhysicallyHandicaped?: string;
-    ProbationPeriod?: string;
-    SingleParent?: string;
-    WeeklyOff?: string | [];
-    Religion?: string;
-    Caste?: string;
-    DesignationJoinedAs?: string;
-    AppointmentDate?: Date | string
-    DesignationAppointedAs?: string;
-    ConfirmationDate?: Date | string
-    PromotionScale?: string;
-    PromotionEffectiveDate?: Date | string;
-    DesignationPromotedToId?: string | number;
-    PromotionConfirmationDate?: Date | string;
+    ShiftAllocatedId?: string = null;
+    FirstName?: string = null;
+    LastName?: string = null;
+    EmployeeName?: string = null;
+    PAN_x0020_No?: string = null;
+    BankNameId?: string | number = null;
+    AccountNo?: string = null;
+    PassportExpiryDate?: Date | string = null;
+    DOB?: Date | string = null;
+    Role?: string = null;
+    SubGroupId?: [] | { results: [] } = [];
+    Title?: string = null;
+    Gender?: string = null;
+    BloodGroup?: string = null;
+    Extension?: string = null;
+    ProfileImage?: { Description?: string, Url?: string } = { Description: null, Url: null};
+    FaxNo?: string = null;
+    VCDisplayNameEnglish?: string = null;
+    VCDisplayNameHindi?: string = null;
+    Active?: boolean = false;
+    SWCEligibility?: boolean = false;
+    AadharCardNo?: string = null;
+    AlternateEmail?: string = null;
+    AzureADEmailID?: string = null;
+    BranchName?: string = null;
+    DMDType?: string = null;
+    DrivingLicenseNumber?: string = null;
+    // EmployeeID?: string = null;
+    EmpType?: string = null;
+    ESIC_x0020_Remarks?: string = null;
+    ESICNumber?: string = null;
+    FatherName?: string = null;
+    FirstName_Hindi?: string = null;
+    LastName_Hindi?: string = null;
+    Level1EmailID?: string = null;
+    MiddleName?: string = null;
+    MiddleName_Hindi?: string = null;
+    // MobileNo?: string = null;
+    MotherName?: string = null;
+    Nationality?: string = null;
+    NPS?: string = null;
+    PassportNo_x002e_?: string = null;
+    PaternityLeaveCount?: string = null;
+    PFNumber?: string = null;
+    PranNo?: string = null;
+    VoterID_x0020_No?: string = null;
+    MaternityLeave_Count?: number = 0;
+    TotalEOL?: number = 0;
+    TotalMaternityLeave?: number = 0;
+    Date_x0020_Of_x0020_Resign?: Date | string = null;
+    Date_x0020_Of_x0020_Resign_x0020?: Date | string = null;
+    DateofAppointment?: Date | string = null;
+    DateOfConfirmation?: Date | string = null;
+    DateOfPromotion?: Date | string = null;
+    DrivingLicenseExpiryDate?: Date | string = null;
+    EffectiveDate?: Date | string = null;
+    ESI_x0020_JoiningDate?: Date | string = null;
+    ESI_x0020_LeavingDate?: Date | string = null;
+    LTCDate?: Date | string = null;
+    MarriageDate?: Date | string = null;
+    PassportIssueDate?: Date | string = null;
+    ShiftEffectiveFrom?: Date | string = null;
+    TempDOB?: Date | string = null;
+    TodayDate?: Date | string = null;
+    ContractType?: string = null;
+    EmployeeTitle?: string = null;
+    MartialStatus?: string = null;
+    PhysicallyHandicaped?: string = null;
+    ProbationPeriod?: string = null;
+    SingleParent?: string = null;
+    WeeklyOff?: [] | { results: [] } = [];
+    Religion?: string = null;
+    Caste?: string = null;
+    DesignationJoinedAs?: string = null;
+    AppointmentDate?: Date | string = null;
+    DesignationAppointedAs?: string = null;
+    ConfirmationDate?: Date | string = null;
+    PromotionScale?: string = null;
+    PromotionEffectiveDate?: Date | string = null;
+    DesignationPromotedToId?: string | number = null;
+    PromotionConfirmationDate?: Date | string = null;
     EmployeeImage?: IEmployeeImagesItem;
     // EmployeeDocuments?: IEmployeeDocumentsItem[];
     // EmergencyContact?: IEmergencyContactItem[];

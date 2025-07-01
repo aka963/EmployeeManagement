@@ -89,7 +89,7 @@ export default class UserProfileOps {
             ListTitle: this.strEmployeeMasterListTitle, SelectQuery: this.strEmployeeMasterColumns
             , ExpandQuery: this.strEmployeeMasterExpandColumns
             , FilterQuery: '(UserName/Name eq \'' + username + '\') and Active eq 1'
-            , SortQuery: { orderBy: 'Id', ascending: true }
+            , SortQuery: { orderBy: 'Id', ascending: false }
         });
         Helper.hideShowLoader('block');
 

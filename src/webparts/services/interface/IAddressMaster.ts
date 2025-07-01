@@ -62,25 +62,22 @@ export const AddressMaster: IAddressMaster = {
     SecurityDepositAmount: 0
 }
 
-export interface IAddressMasterItem {
-    Title?: string;
-    AddressType?: string;
-    Address?: string;
-    PinCode?: string;
-    ResedentialPhone?: string;
-    Country?: ICountry;
-    CountryId?: string
-    State?: IState;
-    StateId?: string;
-    City?: ICity;
-    CityId?: string;
-    EmployeeName?: string;
-    MobileNo?: string;
-    TelephoneNo?: string;
-    AccomodationType?: string;
-    LeaseStartDate?: Date | string;
-    LeaseEndDate?: Date | string;
-    MonthlyRent?: number;
-    Entitlement?: string;
-    SecurityDepositAmount?: number;
+export class IAddressMasterItem {
+    Title?: string = '';
+    AddressType?: string = '';
+    Address?: string = '';
+    PinCode?: string = '';
+    ResedentialPhone?: string = '';
+    CountryId?: string = '';
+    StateId?: string = '';
+    CityId?: string = '';
+    EmployeeName?: string = '';
+    MobileNo?: string = '';
+    TelephoneNo?: string = '';
+    AccomodationType?: string = '';
+    LeaseStartDate?: Date | string = null;
+    LeaseEndDate?: Date | string = null;
+    MonthlyRent?: number = 0;
+    Entitlement?: string = '';
+    SecurityDepositAmount?: number = 0;
 }

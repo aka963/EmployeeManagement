@@ -47,19 +47,16 @@ export const QualificationMaster = {
     YearOfPassing: '',
 }
 
-export interface IQualificationMasterItem {
-    Title?: string;
-    Comments?: string;
-    Duration?: string;
-    EducationId?: string | number;
-    EmployeeName?: string;
-    EndDate?: Date | string;
-    Flag?: string;
-    Score?: string;
-    Speclization?: string;
-    StartDate?: Date | string;
-    TodayDate?: Date | string;
-    Institute?: string;
-    Category?: string;
-    YearOfPassing?: string;
+export class IQualificationMasterItem {
+    Title?: string = '';
+    Comments?: string = '';
+    EducationId?: string | number = '';
+    EmployeeName?: string = '';
+    EndDate?: Date | string = null;
+    Score?: string = '';
+    Speclization?: string = '';
+    StartDate?: Date | string = null;
+    Institute?: string = '';
+    Category?: string = '';
+    YearOfPassing?: string = '';
 }

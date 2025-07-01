@@ -43,18 +43,20 @@ export default class ViewUserProfile extends React.Component<IEmployeeMangementP
 
     public async componentDidMount(): Promise<void> {
         const systemUserKey: string = this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView;
-        await upOps.getUserProfileByUserName(systemUserKey, this.props).then((resp) => {
-            this.setState({
-                userProfile: resp, personaDetails: {
-                    imageUrl: resp.ProfileImage ? resp.ProfileImage.Url : '/_layouts/15/userphoto.aspx?size=L&username=' + systemUserKey
-                    , imageInitials: (resp.FirstName.substring(0, 1) + ' ' + resp.LastName.substring(0, 1))
-                    , text: resp.EmployeeTitle + '. ' + resp.EmployeeName, secondaryText: resp.Designation.Title, tertiaryText: resp.SubGroup[0].GroupName + ' - ' + resp.Role
-                    , optionalText: 'Ext: ' + resp.Extension
-                }
+        if (systemUserKey) {
+            await upOps.getUserProfileByUserName(systemUserKey, this.props).then((resp) => {
+                this.setState({
+                    userProfile: resp, personaDetails: {
+                        imageUrl: resp.ProfileImage ? resp.ProfileImage.Url : '/_layouts/15/userphoto.aspx?size=L&username=' + systemUserKey
+                        , imageInitials: (resp.FirstName.substring(0, 1) + ' ' + resp.LastName.substring(0, 1))
+                        , text: resp.EmployeeTitle + '. ' + resp.EmployeeName, secondaryText: resp.Designation.Title, tertiaryText: resp.SubGroup[0].GroupName + ' - ' + resp.Role
+                        , optionalText: 'Ext: ' + resp.Extension
+                    }
+                });
+            }).catch((e) => {
+                console.log(e);
             });
-        }).catch((e) => {
-            console.log(e);
-        });
+        }
     }
 
     private responseFromLeftNav(selLink: string): void {
@@ -84,7 +86,7 @@ export default class ViewUserProfile extends React.Component<IEmployeeMangementP
                         {/* <div className='ms-Grid'> */}
                         <div className='row'>
                             <div className='col-xs-2 col-sm-1 col-md-1 col-lg-1'>
-                                <LeftNavigation {...this.props} onResponseFromLeftNav={this.responseFromLeftNav } />
+                                <LeftNavigation {...this.props} onResponseFromLeftNav={this.responseFromLeftNav} />
                             </div>
                             {(this.state.userProfile !== undefined && this.state.selectedLink === 'General') ?
                                 <General {...this.props} sharedData={this.state.userProfile} /> : ''

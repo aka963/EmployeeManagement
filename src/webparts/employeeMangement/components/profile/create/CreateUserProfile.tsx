@@ -84,8 +84,8 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
         this.setState({
             userProfile: {
                 ...empProfile
-                , SubGroupId: { results: empProfile.SubGroupId as [] }
-                , WeeklyOff: empProfile.WeeklyOff.toString().replace(/,/g, '')
+                , SubGroupId: (empProfile.SubGroupId && empProfile.SubGroupId['results']) ? empProfile.SubGroupId : { results: empProfile.SubGroupId as [] }
+                , WeeklyOff: (empProfile.WeeklyOff && empProfile.WeeklyOff['results']) ? empProfile.WeeklyOff : { results: empProfile.WeeklyOff as [] }
             }
         }, () => {
             console.log({
@@ -109,7 +109,6 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
     }
 
     private onProfileSubmit(): void {
-        console.log(this.state.isGeneralFormValid);
         if (this.state.isGeneralFormValid && this.state.isAddressFormValid && this.state.isEducationFormValid && this.state.isDependantsFormValid
             && this.state.isExperienceFormValid && this.state.isPromotionsFormValid && this.state.isPostingFormValid) {
             console.log({
@@ -122,10 +121,14 @@ export default class CreateUserProfile extends React.Component<IEmployeeMangemen
                 , isPostingFormValid: this.state.isPostingFormValid
                 , SubmittedValues: this.state.userProfile
             });
-
-            cupOps.insertUserProfile(this.state.userProfile, this.props).then((resp) => {
-                console.log(resp);
-                this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView = this.state.userProfile.UserName.Name
+            let systemUserKey = this.state.userProfile.UserName.LoginName;
+            cupOps.insertUserProfile({
+                ...this.state.userProfile,
+                WeeklyOff: { results: this.state.userProfile.WeeklyOff['results'].filter(val => val !== '') },
+                SubGroupId: { results: this.state.userProfile.SubGroupId['results'].filter(val => val !== '') }
+            }, this.props).then((resp) => {
+                console.log({ resp, systemUserKey });
+                this.props.currentSPContext.pageContext.legacyPageContext.userProfileToView = systemUserKey;
                 window.location.href = '#/viewProfile/General';
             });
         }

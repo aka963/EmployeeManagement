@@ -40,17 +40,17 @@ export const EmergencyContact: IEmergencyContact = {
     Modified: null
 }
 
-export interface IEmergencyContactItem {
-    Title?: string;
-    BloodGroup?: string;
-    EmergencyContactNumber1?: string;
-    EmergencyContactNumber2?: string;
-    EmployeeCode?: string;
-    EmployeeName?: string;
-    Name1?: string;
-    Name2?: string;
-    PermanentAddress?: string;
-    PresentAddress?: string;
-    Relationship1?: string;
-    Relationship2?: string
+export class IEmergencyContactItem {
+    Title?: string = '';
+    BloodGroup?: string = '';
+    EmergencyContactNumber1?: string = '';
+    EmergencyContactNumber2?: string = '';
+    EmployeeCode?: string = '';
+    EmployeeName?: string = '';
+    Name1?: string = '';
+    Name2?: string = '';
+    PermanentAddress?: string = '';
+    PresentAddress?: string = '';
+    Relationship1?: string = '';
+    Relationship2?: string = '';
 }

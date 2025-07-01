@@ -484,7 +484,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>PAPR Reviewer:&nbsp;</Label>
-                                                                {this.state.userProfile.AlternateReportingManager.Title}
+                                                                {this.state.userProfile.AlternateReportingManager ? this.state.userProfile.AlternateReportingManager.Title : ''}
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>Leave Level 1 Approver:&nbsp;</Label>

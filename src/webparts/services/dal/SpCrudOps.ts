@@ -75,29 +75,70 @@ export default class SpCrudOps {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
         const batch = web.createBatch();
         const itemAddResult: IItemAddResult[] = [];
+        const addPromises: Promise<any>[] = [];
+        console.log(listBulkData);
+
+        // listBulkData = [{ "listName": "EmergencyContact", "data": [] }
+        //     , {
+        //         "listName": "EmpTrainingAndCertification", "data": [{
+        //             "Title": "9946544151", "Description": "Description"
+        //             , "EmployeeName": "Developer9 Architect", "ExperienceInId": 2, "Institute": "Institute", "Location": "Domestic", "StartDate": "2025-06-21T18:30:00.000Z", "EndDate": "2025-07-26T18:30:00.000Z", "TrainingCost": "1"
+        //         }]
+        //     }, {
+        //         "listName": "AddressMaster", "data": [{
+        //             "Title": "9946544151", "AddressType": "EXTERNAL", "Address": "Address"
+        //             , "PinCode": "515132", "ResedentialPhone": null, "CountryId": 3, "StateId": 50, "CityId": 54, "EmployeeName": "Developer9 Architect", "MobileNo": "9876541230", "TelephoneNo": "7857857857", "AccomodationType": "Leased", "LeaseStartDate": "2025-06-21T18:30:00.000Z", "LeaseEndDate": "2025-07-19T18:30:00.000Z", "MonthlyRent": "2", "Entitlement": "Entitlement", "SecurityDepositAmount": "3"
+        //         }]
+        //     }, {
+        //         "listName": "Qualification Master", "data": [{
+        //             "Title": "9946544151", "Comments": "Comments", "EducationId": 14
+        //             , "EmployeeName": "Developer9 Architect", "EndDate": "2025-07-05T18:30:00.000Z", "Score": "2", "Speclization": "Speclization", "StartDate": "2025-06-21T18:30:00.000Z", "Institute": "Institute", "Category": "Bachelor of commerce", "YearOfPassing": "2"
+        //         }]
+        //     }, {
+        //         "listName": "Dependent Master", "data": [{
+        //             "Title": "9946544151", "EmployeeName": "Developer9 Architect", "Name": "Dependant1"
+        //             , "DOB": "2025-06-21T18:30:00.000Z", "RelationShip": "Daughter", "DependentType": "Both"
+        //         }]
+        //     }, {
+        //         "listName": "EmployeeExperienceDetail", "data": [{
+        //             "Title": "9946544151", "CityId": 53, "CompanyAddress": "Company Address"
+        //             , "CompanyContactNo": "1", "CountryId": 3, "EmployeeName": "Developer9 Architect", "EndDate": "2025-06-28T18:30:00.000Z", "JobDescription": "Job Description", "JobType": "Full Time", "PreviousCompanyName": "Previous Compnay Name", "StartDate": "2025-06-21T18:30:00.000Z", "StateId": 52, "Designation": "Designation", "PreviousCompanyExp": "2"
+        //         }]
+        //     }, {
+        //         "listName": "PostingHistory", "data": [{
+        //             "Title": null, "EmployeeId": 822, "SubGroupId": 25
+        //             , "FromDate": "2025-06-19T18:30:00.000Z", "ToDate": "2025-06-28T18:30:00.000Z"
+        //         }]
+        //     }]
 
         listBulkData.forEach(async item => {
-            if (item.data.length > 0) {
-                const list: IList = web.lists.getByTitle(item.listName);
-                const entityTypeFullName = await list.getListItemEntityTypeFullName();
+            // if (item.data.length > 0) {
+            const list: IList = web.lists.getByTitle(item.listName);
+            // const entityTypeFullName = await list.getListItemEntityTypeFullName();
 
-                for (let d = 0; d < item.data.length; d++) {
-                    await list.items.inBatch(batch).add(item.data[d], entityTypeFullName).then(b => {
-                        itemAddResult.push(b);
-                    }).catch((e) => { console.log(e); });
-                }
+            for (let d = 0; d < item.data.length; d++) {
+                const addPromise = list.items.inBatch(batch).add(item.data[d]).then(b => {
+                    itemAddResult.push(b);
+                    return b;
+                }).catch((e) => { console.log(e); });
+                addPromises.push(addPromise);
             }
+            // }
         });
 
-        return await batch.execute().then((v: void) => {
-            return itemAddResult;
-        });
+        await batch.execute();
+
+        await Promise.all(addPromises);
+
+        return itemAddResult;
     }
 
     public static async batchUpdate(listBulkData: IListBulkData[], props: IEmployeeMangementProps): Promise<IItemUpdateResult[]> {
         const web: IWeb = Web(props.currentSPContext.pageContext.web.absoluteUrl);
         const batch = web.createBatch();
         const itemUpdateResult: IItemUpdateResult[] = [];
+        const updatePromises: Promise<any>[] = [];
+        console.log(listBulkData);
 
         listBulkData.forEach(async item => {
             if (item.data.length > 0) {
@@ -112,9 +153,9 @@ export default class SpCrudOps {
             }
         });
 
-        return await batch.execute().then((v: void) => {
-            return itemUpdateResult;
-        });
+        await batch.execute();
+        await Promise.all(updatePromises);
+        return itemUpdateResult;
     }
 
     public static async batchDelete(listBulkData: IListBulkData[], props: IEmployeeMangementProps): Promise<void> {

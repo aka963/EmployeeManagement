@@ -72,8 +72,8 @@ export default class AddExperience extends React.Component<IEmployeeMangementPro
                 , CountryId: yup.string().required('Country is required')
                 , StateId: yup.string().required('State is required')
                 , CityId: yup.string().required('City is required')
-                , CompanyContactNo: yup.number().typeError('Year Of Passing should be a number').required('Contact is required')
-                , PreviousCompanyExp: yup.number().typeError('Year Of Passing should be a number').required('Number of Experience is required')
+                , CompanyContactNo: yup.number().typeError('Contact should be a number').required('Contact is required')
+                , PreviousCompanyExp: yup.number().typeError('Number of Experience should be a number').required('Number of Experience is required')
             }))
         });
 

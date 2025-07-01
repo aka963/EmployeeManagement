@@ -37,9 +37,10 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
         this.formikInstance = null;
         // this.state = { userProfile: InitializedUserProfile, userProfileLoadData: props.sharedData.userProfileLoadData };
         this.state = { userProfile: props.sharedData.userProfile, userProfileLoadData: props.sharedData.userProfileLoadData };
-        this.setState({ userProfile: { SubGroupId: props.sharedData.userProfile.SubGroupId } });
+        this.setState({ userProfile: { SubGroupId: props.sharedData.userProfile.SubGroupId, WeeklyOff: props.sharedData.userProfile.WeeklyOff } });
         this.InitializedUserProfile = props.sharedData.userProfile;
         this.InitializedUserProfile.SubGroupId = (props.sharedData.userProfile.SubGroupId && props.sharedData.userProfile.SubGroupId['results']) ? props.sharedData.userProfile.SubGroupId['results'] : props.sharedData.userProfile.SubGroupId as [];
+        this.InitializedUserProfile.WeeklyOff = (props.sharedData.userProfile.WeeklyOff && props.sharedData.userProfile.WeeklyOff['results']) ? props.sharedData.userProfile.WeeklyOff['results'] : props.sharedData.userProfile.WeeklyOff as [];
         this._getPeoplePickerItems = this._getPeoplePickerItems.bind(this);
         // this.onProfileSubmit = this.onProfileSubmit.bind(this);
         this.setFormikInstance = this.setFormikInstance.bind(this);
@@ -715,61 +716,66 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                     <div className='row'>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Employee Name:&nbsp;</Label>
-                                                                            <TextField className='form-control' id='EmployeeName' name='EmployeeName' value={formik.values.EmployeeName}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.EmployeeName`} name={`EmergencyContact.${0}.EmployeeName`}
+                                                                                value={formik.values.EmergencyContact[0].EmployeeName}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('EmployeeName', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.EmployeeName`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Permanent Address:&nbsp;</Label>
-                                                                            <TextField className='form-control' multiline={true} id='PermanentAddress' name='PermanentAddress'
-                                                                                value={formik.values.PermanentAddress}
+                                                                            <TextField className='form-control' multiline={true} id={`EmergencyContact.${0}.PermanentAddress`} name={`EmergencyContact.${0}.PermanentAddress`}
+                                                                                value={formik.values.EmergencyContact[0].PermanentAddress}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('PermanentAddress', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.PermanentAddress`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Name1' name='Name1' value={formik.values.Name1}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.Name1`} name={`EmergencyContact.${0}.Name1`}
+                                                                                value={formik.values.EmergencyContact[0].Name1}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('Name1', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.Name1`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='EmergencyContactNumber1' name='EmergencyContactNumber1'
-                                                                                value={formik.values.EmergencyContactNumber1}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.EmergencyContactNumber1`} name={`EmergencyContact.${0}.EmergencyContactNumber1`}
+                                                                                value={formik.values.EmergencyContact[0].EmergencyContactNumber1}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('EmergencyContactNumber1', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.EmergencyContactNumber1`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Relationship1' name='Relationship1' value={formik.values.Relationship1}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.Relationship1`} name={`EmergencyContact.${0}.Relationship1`}
+                                                                                value={formik.values.EmergencyContact[0].Relationship1}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('Relationship1', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.Relationship1`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Name (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Name2' name='Name2' value={formik.values.Name2}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.Name2`} name={`EmergencyContact.${0}.Name2`}
+                                                                                value={formik.values.EmergencyContact[0].Name2}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('Name2', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.Name2`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Contact (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='EmergencyContactNumber2' name='EmergencyContactNumber2'
-                                                                                value={formik.values.EmergencyContactNumber2}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.EmergencyContactNumber2`} name={`EmergencyContact.${0}.EmergencyContactNumber2`}
+                                                                                value={formik.values.EmergencyContact[0].EmergencyContactNumber2}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('EmergencyContactNumber2', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.EmergencyContactNumber2`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                         <div className='col-xs-12 col-sm-12 col-md-4 col-lg-2 profile-body-item'>
                                                                             <Label>Relation (Not Family Member):&nbsp;</Label>
-                                                                            <TextField className='form-control' id='Relationship2' name='Relationship2' value={formik.values.Relationship2}
+                                                                            <TextField className='form-control' id={`EmergencyContact.${0}.Relationship2`} name={`EmergencyContact.${0}.Relationship2`}
+                                                                                value={formik.values.EmergencyContact[0].Relationship2}
                                                                                 onChanged={(val) => {
-                                                                                    formik.setFieldValue('Relationship2', val);
+                                                                                    formik.setFieldValue(`EmergencyContact.${0}.Relationship2`, val);
                                                                                 }}></TextField>
                                                                         </div>
                                                                     </div>
@@ -1231,7 +1237,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                         <Label>Weekly Off:&nbsp;</Label>
                                                                         {/* <Checkbox /> */}
                                                                         <Dropdown placeHolder='Select Weekly Off' className='form-control' id='WeeklyOff'
-                                                                            selectedKeys={(typeof this.state.userProfile.WeeklyOff === 'string') ? this.state.userProfile.WeeklyOff.match(/.+?;#/g) : this.state.userProfile.WeeklyOff as []}
+                                                                            selectedKeys={formik.values.WeeklyOff}
                                                                             multiSelect={true} options={
                                                                                 (this.state.userProfileLoadData !== undefined) ? this.state.userProfileLoadData.WeeklyOffChoices : []
                                                                             }
@@ -1241,11 +1247,15 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                             onChanged={(option) => {
                                                                                 if (option.key === '' && option.selected === true) {
                                                                                     this.InitializedUserProfile.WeeklyOff = this.state.userProfileLoadData.WeeklyOffChoices.map(opt => opt.key) as [];
-                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } });
+                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } }, () => {
+                                                                                        console.log(this.state.userProfile.WeeklyOff);
+                                                                                    });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 } else if (option.key === '' && option.selected === false) {
                                                                                     this.InitializedUserProfile.WeeklyOff = [];
-                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } });
+                                                                                    this.setState({ userProfile: { WeeklyOff: this.InitializedUserProfile.WeeklyOff } }, () => {
+                                                                                        console.log(this.state.userProfile.WeeklyOff);
+                                                                                    });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
                                                                                 else {
@@ -1256,8 +1266,9 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
-                                                                                formik.setFieldValue('WeeklyOff', this.InitializedUserProfile.WeeklyOff.filter(val => val !== ''));
-                                                                                console.log(this.state.userProfile.WeeklyOff);
+                                                                                console.log({ formik: formik.values.WeeklyOff });
+
+                                                                                formik.setFieldValue('WeeklyOff', this.InitializedUserProfile.WeeklyOff.filter(val => val !== 'HadNoOption'));
                                                                             }}
                                                                         />
                                                                         {/* {(typeof this.state.userProfile.WeeklyOff === 'string') ? this.state.userProfile.WeeklyOff.match(/.+?;#/g) : this.state.userProfile.WeeklyOff as []} */}
@@ -1327,7 +1338,7 @@ export default class AddGeneralProfile extends React.Component<IEmployeeMangemen
                                                                                     this.setState({ userProfile: { SubGroupId: this.InitializedUserProfile.SubGroupId } });
                                                                                     // console.log(this.state.userProfile.SubGroupId.filter(val => val !== ''));
                                                                                 }
-                                                                                formik.setFieldValue('SubGroupId', this.InitializedUserProfile.SubGroupId.filter(val => val !== ''));
+                                                                                formik.setFieldValue('SubGroupId', this.InitializedUserProfile.SubGroupId.filter(val => val !== 'HadNoOption'));
                                                                             }}
                                                                             errorMessage={formik.errors.SubGroupId && formik.touched.SubGroupId ? formik.errors.SubGroupId as string : ''}
                                                                         />

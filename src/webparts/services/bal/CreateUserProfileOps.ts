@@ -304,70 +304,108 @@ export default class CreateUserProfileOps {
 
     public static async insertUserProfile(userProfileParam: IUserProfile, props: IEmployeeMangementProps): Promise<any> {
         Helper.hideShowLoader('block');
-        let userProfileItem: IUserProfileItem = userProfileParam;
+        let userProfileItem: IUserProfileItem = new IUserProfileItem();
+        userProfileItem = Helper.pickRequiredProperty(userProfileParam, Object.keys(userProfileItem) as []);
         let userProfileImageUrl = { Description: '', Url: '' };
 
-        if (userProfileParam.EmployeeImage.Document.length > 0) {
+        if (userProfileParam.EmployeeImage.Document && userProfileParam.EmployeeImage.Document.length > 0) {
             const imageFile = userProfileParam.EmployeeImage.Document[0];
             let userProfileImage = await spcrud.uploadFile(props.currentSPContext.pageContext.legacyPageContext.siteServerRelativeUrl + "/EmployeeImages/", imageFile, props)
             const item = await userProfileImage.file.getItem();
             await item.update({ Title: imageFile.name });
-            userProfileImageUrl = { Description: imageFile.name, Url: props.currentSPContext.pageContext.legacyPageContext.webAbsoluteUrl + '/' + userProfileImage.data.ServerRelativeUrl };
+            userProfileImageUrl = { Description: imageFile.name, Url: props.currentSPContext.pageContext.legacyPageContext.webAbsoluteUrl + userProfileImage.data.ServerRelativeUrl };
             // userProfileImageUrl = { Description: imageFile.name, Url: userProfileImage.data.LinkingUrl };
             userProfileItem.ProfileImage = userProfileImageUrl;
         }
 
-        return spcrud.insertData(this.strEmployeeMasterListTitle, userProfileItem, props).then(async (resp: IItemAddResult) => {
+        return await spcrud.insertData(this.strEmployeeMasterListTitle, userProfileItem, props).then(async (resp: IItemAddResult) => {
             const strUserProfileID = resp.data.Id;
             const userProfile: IUserProfile = await upOps.getUserProfileById(strUserProfileID, props);
             let listBulkData: IListBulkData[] = [];
 
-            const emgContactItem: IEmergencyContactItem[] = userProfileParam.EmergencyContact;
+            let emgContactItems: IEmergencyContactItem[] = [];
+            userProfileParam.EmergencyContact.forEach((item, i) => {
+                let emgConItem = Helper.pickRequiredProperty(userProfileParam.EmergencyContact[i], Object.keys(new IEmergencyContactItem()) as [])
+                emgContactItems.push(emgConItem);
+            });
             listBulkData.push({
-                listName: 'EmergencyContact', data: emgContactItem
-                    .filter(opt => opt.Name1.trim() !== '')
+                listName: 'EmergencyContact', data: emgContactItems
+                    .filter(opt => { return opt.Name1 !== null && opt.Name1 !== undefined && opt.Name1.trim() !== ''; })
                     .map((item) => ({ ...item, EmployeeCode: userProfile.Title, Title: item.Name1, EmployeeName: userProfile.EmployeeName }))
             });
-            const trainNCertItem: ITrainingNCertificationItem[] = userProfileParam.TrainingNCertificate;
-            listBulkData.push({
-                listName: 'EmpTrainingAndCertification', data: trainNCertItem
-                    .filter(opt => opt.Institute.trim() !== '')
-                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+
+            let trainNCertItems: ITrainingNCertificationItem[] = [];
+            userProfileParam.TrainingNCertificate.forEach((item, i) => {
+                let trainNCertItem = Helper.pickRequiredProperty(userProfileParam.TrainingNCertificate[i], Object.keys(new ITrainingNCertificationItem()) as [])
+                trainNCertItems.push(trainNCertItem);
             });
-            const addMasterItem: IAddressMasterItem[] = userProfileParam.AddressMaster;
             listBulkData.push({
-                listName: 'AddressMaster', data: addMasterItem
-                    .filter(opt => opt.AddressType.trim() !== '')
+                listName: 'EmpTrainingAndCertification', data: trainNCertItems
+                    .filter(opt => { return opt.Institute !== null && opt.Institute !== undefined && opt.Institute.trim() !== ''; })
                     .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
-            });
-            const qualficationMasterItem: IQualificationMasterItem[] = userProfileParam.QualificationMaster;
-            listBulkData.push({
-                listName: 'Qualification Master', data: qualficationMasterItem
-                    .filter(opt => opt.EducationId !== '')
-                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
-            });
-            const dependantMasterItem: IDependentMasterItem[] = userProfileParam.DependentMaster;
-            listBulkData.push({
-                listName: 'Dependent Master', data: dependantMasterItem
-                    .filter(opt => opt.Name !== '')
-                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
-            });
-            const expDetailsItem: IExperienceDetailsItem[] = userProfileParam.ExperienceDetails;
-            listBulkData.push({
-                listName: 'EmployeeExperienceDetail', data: expDetailsItem
-                    .filter(opt => opt.PreviousCompanyName !== '')
-                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
-            });
-            const postingHistory: IPostingHistoryItem[] = userProfileParam.PostingHistory;
-            listBulkData.push({
-                listName: 'PostingHistory', data: postingHistory
-                    .filter(opt => opt.SubGroupId !== '')
-                    .map((item) => ({ ...item, EmployeeId: userProfile.Id }))
             });
 
-            userProfileParam.EmployeeDocuments = userProfileParam.EmployeeDocuments.map((item) => ({ ...item, EmployeeId: userProfile.Id }));
+            let addMasterItems: IAddressMasterItem[] = [];
+            userProfileParam.AddressMaster.forEach((item, i) => {
+                let addMasterItem = Helper.pickRequiredProperty(item, Object.keys(new IAddressMasterItem()) as [])
+                addMasterItems.push(addMasterItem);
+            });
+            listBulkData.push({
+                listName: 'AddressMaster', data: addMasterItems
+                    .filter(opt => { return opt.AddressType !== null && opt.AddressType !== undefined && opt.AddressType.trim() !== ''; })
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
 
-            return spcrud.batchInsert(listBulkData, props).then(async (resp) => {
+            let qualificationMasterItems: IQualificationMasterItem[] = [];
+            userProfileParam.QualificationMaster.forEach((item, i) => {
+                let qualificationMasterItem = Helper.pickRequiredProperty(item, Object.keys(new IQualificationMasterItem()) as [])
+                qualificationMasterItems.push(qualificationMasterItem);
+            });
+            listBulkData.push({
+                listName: 'Qualification Master', data: qualificationMasterItems
+                    .filter(opt => { return opt.EducationId !== null && opt.EducationId !== undefined && opt.EducationId !== ''; })
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+
+            let dependantMasterItems: IDependentMasterItem[] = [];
+            userProfileParam.DependentMaster.forEach((item, i) => {
+                let dependantMasterItem = Helper.pickRequiredProperty(item, Object.keys(new IDependentMasterItem()) as [])
+                dependantMasterItems.push(dependantMasterItem);
+            });
+            listBulkData.push({
+                listName: 'Dependent Master', data: dependantMasterItems
+                    .filter(opt => { return opt.Name !== null && opt.Name !== undefined && opt.Name !== ''; })
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+            const expDetailsItem: IExperienceDetailsItem[] = userProfileParam.ExperienceDetails as IExperienceDetailsItem[];
+
+            let experienceDetailsItems: IExperienceDetailsItem[] = [];
+            userProfileParam.ExperienceDetails.forEach((item, i) => {
+                let experienceDetailsItem = Helper.pickRequiredProperty(item, Object.keys(new IExperienceDetailsItem()) as [])
+                experienceDetailsItems.push(experienceDetailsItem);
+            });
+            listBulkData.push({
+                listName: 'EmployeeExperienceDetail', data: experienceDetailsItems
+                    .filter(opt => { return opt.PreviousCompanyName !== null && opt.PreviousCompanyName !== undefined && opt.PreviousCompanyName !== ''; })
+                    .map((item) => ({ ...item, Title: userProfile.Title, EmployeeName: userProfile.EmployeeName }))
+            });
+
+            let postingHistoryItems: IPostingHistoryItem[] = [];
+            userProfileParam.PostingHistory.forEach((item, i) => {
+                let postingHistoryItem = Helper.pickRequiredProperty(item, Object.keys(new IPostingHistoryItem()) as [])
+                postingHistoryItems.push(postingHistoryItem);
+            });
+            listBulkData.push({
+                listName: 'PostingHistory', data: postingHistoryItems
+                    .filter(opt => { return opt.SubGroupId !== null && opt.SubGroupId !== undefined && opt.SubGroupId !== ''; })
+                    .map((item) => ({ ...item, EmployeeId: userProfile.Id, Title: userProfile.EmployeeName }))
+            });
+
+            userProfileParam.EmployeeDocuments = userProfileParam.EmployeeDocuments
+                .filter(opt => { return opt.Document !== null && opt.Document != undefined; })
+                .map((item) => ({ ...item, EmployeeId: userProfile.Id }));
+
+            return await spcrud.batchInsert(listBulkData, props).then(async (resp) => {
                 let empDocuments = await this.uploadEmployeeDocuments(userProfileParam.EmployeeDocuments, 0, props);
                 Helper.hideShowLoader('none');
                 return resp;

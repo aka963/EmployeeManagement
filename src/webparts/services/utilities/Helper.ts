@@ -74,7 +74,8 @@ export default class Helper {
             } else if (dataType === DataType.Choices && !ismultiChoice) {
                 ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i], ariaLabel: choices[i] });
             } else if (dataType === DataType.Choices && ismultiChoice) {
-                ddOptions.push({ index: (i + 1), key: choices[i] + ';#', text: choices[i], ariaLabel: choices[i] });
+                // ddOptions.push({ index: (i + 1), key: choices[i] + ';#', text: choices[i], ariaLabel: choices[i] });
+                ddOptions.push({ index: (i + 1), key: choices[i], text: choices[i], ariaLabel: choices[i] });
             }
         }
 
@@ -138,5 +139,16 @@ export default class Helper {
     public static filterDeeply(list, term) {
         if (!term) return list.slice();  // return a shallow copy if no filter
         return list.filter(item => this.hasMatch(item, term));
+    }
+
+    public static pickRequiredProperty<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+        return keys.reduce((result, key) => {
+            if (obj[key]) {
+                result[key] = obj[key];
+            } else {
+                result[key] = null;
+            }
+            return result;
+        }, {} as Pick<T, K>);
     }
 }

@@ -403,13 +403,17 @@ $ms-color-disabledText: #c8c8c8;
     display: none;
   }
 
-  .pageContainer_5a558a10 {
+  [class*="pageContainer_"] {
     left: 0px !important;
   }
 
   .ms-compositeHeader,
   .imageFrame_741262a5,
   .nav_5a558a10 {
+    display: none !important;
+  }
+
+  [class*="nav_"] {
     display: none !important;
   }
 
@@ -429,7 +433,7 @@ $ms-color-disabledText: #c8c8c8;
     padding: 0px !important;
   }
 
-  .commentsWrapper_16ffed33 {
+  [class*="commentsWrapper_"] {
     display: none !important;
   }
 

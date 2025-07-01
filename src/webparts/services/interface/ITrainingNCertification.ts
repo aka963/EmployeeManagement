@@ -48,19 +48,14 @@ export const TrainingNCertification = {
     TrainingCost: '',
 }
 
-export interface ITrainingNCertificationItem {
-    Title?: string;
-    ApprovedById?: string | number;
-    Description?: string;
-    EmployeeName?: string;
-    EndDate?: Date | string;
-    ExperienceInId?: string | number;
-    Grade?: string;
-    Institute?: string;
-    Location?: string;
-    NoOfDays?: string;
-    NoOfHours?: string;
-    StartDate?: Date | string;
-    TodayDate?: Date;
-    TrainingCost?: string | number;
+export class ITrainingNCertificationItem {
+    Title?: string = '';
+    Description?: string = '';
+    EmployeeName?: string = '';
+    ExperienceInId?: string | number = '';
+    Institute?: string = '';
+    Location?: string = '';
+    StartDate?: Date | string = null;
+    EndDate?: Date | string = null;
+    TrainingCost?: string | number = '';
 }

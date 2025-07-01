@@ -72,7 +72,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                         </div>
                                                         <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12 profile-body-item'>
                                                             <Label>Type:&nbsp;</Label>
-                                                            {this.state.userProfile.EmployeeType.Title}
+                                                            {this.state.userProfile.EmployeeType ? this.state.userProfile.EmployeeType.Title : ''}
                                                         </div>
                                                         <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12 profile-body-item'>
                                                             <Label>DOJ:&nbsp;</Label>
@@ -95,7 +95,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                         </div>
                                                         <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                             <Label>Type:&nbsp;</Label>
-                                                            {this.state.userProfile.EmployeeType.Title}
+                                                            {this.state.userProfile.EmployeeType ? this.state.userProfile.EmployeeType.Title : ''}
                                                         </div>
                                                         <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                             <Label>DOJ:&nbsp;</Label>
@@ -396,7 +396,7 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                 <div className='row'>
                                                     <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
                                                         <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
-                                                            <Label>Name:&nbsp;</Label> {this.state.userProfile.BankName.Title}
+                                                            <Label>Name:&nbsp;</Label> {this.state.userProfile.BankName ? this.state.userProfile.BankName.Title : ''}
                                                         </div>
                                                         <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                             <Label>Branch:&nbsp;</Label> {this.state.userProfile.BranchName}
@@ -480,11 +480,11 @@ export default class General extends React.Component<IEmployeeMangementProps, IU
                                                         <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>PAPR Manager:&nbsp;</Label>
-                                                                {this.state.userProfile.ReportingManager.Title}
+                                                                {this.state.userProfile.ReportingManager ? this.state.userProfile.ReportingManager.Title : ''}
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>PAPR Reviewer:&nbsp;</Label>
-                                                                {this.state.userProfile.AlternateReportingManager.Title}
+                                                                {this.state.userProfile.AlternateReportingManager ? this.state.userProfile.AlternateReportingManager.Title : ''}
                                                             </div>
                                                             <div className='col-xs-12 col-sm-4 col-md-12 col-lg-6 profile-body-item'>
                                                                 <Label>Leave Level 1 Approver:&nbsp;</Label>

@@ -55,20 +55,19 @@ export const ExperienceDetails = {
     PreviousCompanyExp: 0,
 }
 
-export interface IExperienceDetailsItem {
-    Title?: string;
-    CityId?: string | number;
-    CompanyAddress?: string;
-    CompanyContactNo?: string;
-    CountryId?: string | number;
-    EmployeeName?: string;
-    EndDate?: Date | string;
-    JobDescription?: string;
-    JobType?: string;
-    PreviousCompanyName?: string;
-    StartDate?: Date | string;
-    StateId?: string | number;
-    TodayDate?: Date | string;
-    Designation?: string;
-    PreviousCompanyExp?: number;
+export class IExperienceDetailsItem {
+    Title?: string = '';
+    CityId?: string | number = '';
+    CompanyAddress?: string = '';
+    CompanyContactNo?: string = '';
+    CountryId?: string | number = '';
+    EmployeeName?: string = '';
+    EndDate?: Date | string = null;
+    JobDescription?: string = '';
+    JobType?: string = '';
+    PreviousCompanyName?: string = '';
+    StartDate?: Date | string = null;
+    StateId?: string | number = '';
+    Designation?: string = '';
+    PreviousCompanyExp?: number = 0;
 }
